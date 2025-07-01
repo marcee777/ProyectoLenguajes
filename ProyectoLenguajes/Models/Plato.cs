@@ -13,6 +13,8 @@ namespace ProyectoPedidosExpress.Models
     */
     public class Plato
     {
+
+        //,d,lc,lesseeeeeeeeeeeeeeeeeee
         [Key]
         public int Id { get; set; }
 
