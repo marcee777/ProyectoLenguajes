@@ -14,8 +14,6 @@ namespace ProyectoPedidosExpress.Models
     public class Plato
     {
 
-        //Cambios Carolinaaaaaaa
-
 
         [Key]
         public int Id { get; set; }
