@@ -31,13 +31,13 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
         // GET: Admin/Order
         // Optional filters: clientId, startDate, endDate, status
-        public IActionResult Index(int? clientId, DateTime? startDate, DateTime? endDate, string? status)
+        public IActionResult Index(string? clientId, DateTime? startDate, DateTime? endDate, string? status)
         {
-            var orders = _unitOfWork.Order.GetAll(includeProperties: "OrderDetails,Dish,Client").AsQueryable();
+            var orders = _unitOfWork.Order.GetAll(includeProperties: "OrderDetails.Dish,Client,Status").AsQueryable();
 
-            if (clientId.HasValue)
+            if (!string.IsNullOrEmpty(clientId))
             {
-                orders = orders.Where(o => o.ClientId == clientId.Value);
+                orders = orders.Where(o => o.ClientId == clientId);
             }
 
             if (startDate.HasValue)
@@ -52,7 +52,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             if (!string.IsNullOrEmpty(status) && AllowedStatuses.Contains(status))
             {
-                orders = orders.Where(o => o.Status == status);
+                orders = orders.Where(o => o.Status.Name == status);
             }
 
             var filteredList = orders.OrderByDescending(o => o.CreatedAt).ToList();

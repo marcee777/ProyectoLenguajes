@@ -122,7 +122,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             return RedirectToAction("Index"); 
         }
 
-
         #region API
 
         [HttpGet]
@@ -131,7 +130,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             var dishList = _unitOfWork.Dish.GetAll();
             return Json(new { data = dishList });
         }
-
 
         [HttpDelete]
         public IActionResult Delete(int? id)
@@ -162,7 +160,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         #endregion
-
 
     }
 }

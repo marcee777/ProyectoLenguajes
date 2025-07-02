@@ -17,9 +17,14 @@ namespace ProyectoLenguajes.Models
 
         [Required]
         public DateTime CreatedAt { get; set; }
+
+        [Required]
+        public int StatusId { get; set; }  // FK hacia Status
+
+        [ForeignKey("StatusId")]
+        public Status Status { get; set; } // Navigation property
+
         public List<OrderDetail> OrderDetails { get; set; }
 
-
-   
     }
 }

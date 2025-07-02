@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Models;
+using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Data
 {
@@ -25,14 +26,14 @@ namespace ProyectoLenguajes.Data
             modelBuilder.Entity<OrderDetail>()
                 .HasKey(od => new { od.OrderId, od.DishId });
 
-
             // Semilla para estados 
             modelBuilder.Entity<Status>().HasData(
-                new Status { Id = 1, Name = "On Time" },
-                new Status { Id = 2, Name = "Over Time" },
-                new Status { Id = 3, Name = "Delayed" },
-                new Status { Id = 4, Name = "Canceled" },
-                new Status { Id = 5, Name = "Delivered" }
+
+                new Status { Id = 1, Name = StaticValues.Status_OnTime},
+                new Status { Id = 2, Name = StaticValues.Status_OverTime},
+                new Status { Id = 3, Name = StaticValues.Status_Delayed},
+                new Status { Id = 4, Name = StaticValues.Status_Canceled},
+                new Status { Id = 5, Name = StaticValues.Status_Delivered}
             );
         }
     }
