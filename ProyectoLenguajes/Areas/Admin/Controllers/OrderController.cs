@@ -51,22 +51,24 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 })
                 .ToList();
 
-            var vm = new OrderIndexVM
-            {
-                Orders = orders,
-                ClientList = _unitOfWork.ApplicationUsers.GetAll()
-                    .Select(u => new SelectListItem { Text = u.UserName, Value = u.Id })
-                    .ToList(),
-                StatusList = _unitOfWork.Status.GetAll()
-                    .Select(s => new SelectListItem { Text = s.Name, Value = s.Id.ToString() })
-                    .ToList(),
-                SelectedClientId = clientId,
-                SelectedStatusId = statusId,
-                StartDate = startDate,
-                EndDate = endDate
-            };
+            //var vm = new OrderIndexVM
+            //{
+            //    Orders = orders,
+            //    ClientList = _unitOfWork.ApplicationUsers.GetAll()
+            //        .Select(u => new SelectListItem { Text = u.UserName, Value = u.Id })
+            //        .ToList(),
+            //    StatusList = _unitOfWork.Status.GetAll()
+            //        .Select(s => new SelectListItem { Text = s.Name, Value = s.Id.ToString() })
+            //        .ToList(),
+            //    SelectedClientId = clientId,
+            //    SelectedStatusId = statusId,
+            //    StartDate = startDate,
+            //    EndDate = endDate
+            //};
 
-            return View(vm);
+            //return View(vm);
+
+            return View();
         }
 
         // POST: Change order status

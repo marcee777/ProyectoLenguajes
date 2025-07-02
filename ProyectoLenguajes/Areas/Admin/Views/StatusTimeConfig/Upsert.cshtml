@@ -1,0 +1,37 @@
+﻿@model ProyectoLenguajes.Models.StatusTimeConfig
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Create Configuration" : "Edit Configuration";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<form asp-action="Upsert" method="post">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="form-group">
+        <label asp-for="StatusName"></label>
+        <input asp-for="StatusName" class="form-control" />
+        <span asp-validation-for="StatusName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="MinutesToNextState"></label>
+        <input asp-for="MinutesToNextState" class="form-control" />
+        <span asp-validation-for="MinutesToNextState" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="NextStatusName"></label>
+        <input asp-for="NextStatusName" class="form-control" />
+        <span asp-validation-for="NextStatusName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+

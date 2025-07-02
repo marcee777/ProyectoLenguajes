@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Utilities;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = StaticValues.Role_Admin)]
+    //[Authorize(Roles = StaticValues.Role_Admin)]
     public class CustomerController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;

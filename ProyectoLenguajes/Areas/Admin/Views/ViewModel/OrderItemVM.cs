@@ -9,4 +9,3 @@
         public List<OrderDishItemVM> Items { get; set; } = new();
     }
 }
-}

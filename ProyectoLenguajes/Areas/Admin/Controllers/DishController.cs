@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using ProyectoLenguajes.Data.Repository;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Utilities;
@@ -32,10 +33,9 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            
-            return View();
+            IEnumerable<Dish> dishList = _unitOfWork.Dish.GetAll();
+            return View(dishList);
         }
-
 
         [HttpGet]
         public IActionResult Upsert(int? id)

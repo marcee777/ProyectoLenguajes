@@ -6,6 +6,7 @@
         IOrderDetailRepository OrderDetail { get; }
         IOrderRepository Order { get; } 
         IStatusRepository Status { get; }
+        IStatusTimeConfigRepository StatusTimeConfig { get; }
 
         void Save();
     }

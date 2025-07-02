@@ -5,7 +5,7 @@ using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Data.Repository;
 using ProyectoLenguajes.Utilities;
-
+using ProyectoLenguajes.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +25,8 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkSto
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+
+builder.Services.AddHostedService<OrderStatusBackgroundService>();
 
 //=======================================CORS
 builder.Services.AddCors(options =>
@@ -56,7 +58,6 @@ if (!app.Environment.IsDevelopment())
 app.UseCors("AllowAnyOrigin");
 //=======================================CORS
 
-
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -65,6 +66,10 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();
+
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{area=Admin}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",

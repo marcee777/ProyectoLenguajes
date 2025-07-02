@@ -17,6 +17,8 @@ namespace ProyectoLenguajes.Data
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Status> Status { get; set; }
+        public DbSet<StatusTimeConfig> StatusTimeConfigs { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

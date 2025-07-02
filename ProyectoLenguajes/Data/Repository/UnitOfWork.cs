@@ -12,11 +12,18 @@ namespace ProyectoLenguajes.Data.Repository
 
         public IOrderRepository Order { get; private set; }
 
-        public IStatusRepository Status { get; private set; } 
+        public IStatusRepository Status { get; private set; }
+        public IStatusTimeConfigRepository StatusTimeConfig { get; private set; }
+
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
+            Dish = new DishRepository(_db);
+            OrderDetail = new OrderDetailRepository(_db);
+            Order = new OrderRepository(_db);
+            Status = new StatusRepository(_db);
+            StatusTimeConfig = new StatusTimeConfigRepository(_db);
         }
 
         public void Save()
