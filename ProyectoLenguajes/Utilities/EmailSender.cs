@@ -1,0 +1,14 @@
+﻿using Microsoft.AspNetCore.Identity.UI.Services;
+
+namespace ProyectoLenguajes.Utilities
+{
+    public class EmailSender : IEmailSender
+    {
+        public Task SendEmailAsync(string email, string subject, string htmlMessage)
+        {
+            // En futuro se puede implementar la lógica
+            return Task.CompletedTask;
+        }
+
+    }
+}

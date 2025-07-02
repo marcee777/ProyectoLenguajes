@@ -1,11 +1,18 @@
-﻿namespace ProyectoLenguajes.Areas.Admin.Views.ViewModel
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace ProyectoLenguajes.Areas.Admin.Views.ViewModel
 {
-    public class OrderVM
+    public class OrderIndexVM
     {
-        public int OrderId { get; set; }
-        public string ClientName { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public string StatusName { get; set; }
-        public List<OrderItemVM> Items { get; set; }
+        public List<OrderListItemVM> Orders { get; set; } = new();
+
+        public IEnumerable<SelectListItem> ClientList { get; set; } = new List<SelectListItem>();
+        public IEnumerable<SelectListItem> StatusList { get; set; } = new List<SelectListItem>();
+
+        public string SelectedClientId { get; set; }
+        public int? SelectedStatusId { get; set; }
+
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
     }
 }

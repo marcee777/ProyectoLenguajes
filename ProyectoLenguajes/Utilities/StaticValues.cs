@@ -3,6 +3,10 @@
     public static class StaticValues
     {
 
+        public const string Role_Admin = "Admin";
+        public const string Role_Chef = "Chef";
+        public const string Role_Customer = "Customer";
+
         public const string Image_DefaultName = "default.jpg";
 
         public const string Status_OnTime = "On Time";

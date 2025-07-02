@@ -1,28 +1,15 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using ProyectoLenguajes.Areas.Admin.Views.ViewModel;
 using ProyectoLenguajes.Data.Repository.Interfaces;
-using ProyectoLenguajes.Models;
-using ProyectoLenguajes.Utilities; // Para usar StaticValues
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    // TODO: Add authorization attribute for admin role
+    // [Authorize(Roles = StaticValues.Role_Admin)] // puedes habilitarlo si quieres
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-
-        // Allowed statuses from StaticValues
-        private readonly List<string> AllowedStatuses = new List<string>
-        {
-            StaticValues.Status_OnTime,
-            StaticValues.Status_OverTime,
-            StaticValues.Status_Delayed,
-            StaticValues.Status_Canceled,
-            StaticValues.Status_Delivered
-        };
 
         public OrderController(IUnitOfWork unitOfWork)
         {
@@ -30,50 +17,71 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // GET: Admin/Order
-        // Optional filters: clientId, startDate, endDate, status
-        public IActionResult Index(string? clientId, DateTime? startDate, DateTime? endDate, string? status)
+        public IActionResult Index(string? clientId, int? statusId, DateTime? startDate, DateTime? endDate)
         {
-            var orders = _unitOfWork.Order.GetAll(includeProperties: "OrderDetails.Dish,Client,Status").AsQueryable();
+            var ordersQuery = _unitOfWork.Order
+                .GetAll(includeProperties: "OrderDetails.Dish,Client,Status")
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(clientId))
-            {
-                orders = orders.Where(o => o.ClientId == clientId);
-            }
+                ordersQuery = ordersQuery.Where(o => o.ClientId == clientId);
+
+            if (statusId.HasValue)
+                ordersQuery = ordersQuery.Where(o => o.StatusId == statusId.Value);
 
             if (startDate.HasValue)
-            {
-                orders = orders.Where(o => o.CreatedAt >= startDate.Value.Date);
-            }
+                ordersQuery = ordersQuery.Where(o => o.CreatedAt >= startDate.Value);
 
             if (endDate.HasValue)
+                ordersQuery = ordersQuery.Where(o => o.CreatedAt <= endDate.Value);
+
+            var orders = ordersQuery
+                .OrderByDescending(o => o.CreatedAt)
+                .Select(o => new OrderListItemVM
+                {
+                    OrderId = o.Id,
+                    ClientName = o.Client.UserName,
+                    StatusName = o.Status.Name,
+                    CreatedAt = o.CreatedAt,
+                    Items = o.OrderDetails.Select(od => new OrderDishItemVM
+                    {
+                        DishName = od.Dish.Name,
+                        Amount = od.Amount
+                    }).ToList()
+                })
+                .ToList();
+
+            var vm = new OrderIndexVM
             {
-                orders = orders.Where(o => o.CreatedAt <= endDate.Value.Date.AddDays(1).AddTicks(-1));
-            }
+                Orders = orders,
+                ClientList = _unitOfWork.ApplicationUsers.GetAll()
+                    .Select(u => new SelectListItem { Text = u.UserName, Value = u.Id })
+                    .ToList(),
+                StatusList = _unitOfWork.Status.GetAll()
+                    .Select(s => new SelectListItem { Text = s.Name, Value = s.Id.ToString() })
+                    .ToList(),
+                SelectedClientId = clientId,
+                SelectedStatusId = statusId,
+                StartDate = startDate,
+                EndDate = endDate
+            };
 
-            if (!string.IsNullOrEmpty(status) && AllowedStatuses.Contains(status))
-            {
-                orders = orders.Where(o => o.Status.Name == status);
-            }
-
-            var filteredList = orders.OrderByDescending(o => o.CreatedAt).ToList();
-
-            ViewBag.Statuses = AllowedStatuses;
-
-            return View(filteredList);
+            return View(vm);
         }
 
         // POST: Change order status
         [HttpPost]
-        public IActionResult ChangeStatus(int orderId, string newStatus)
+        public IActionResult ChangeStatus(int orderId, int newStatusId)
         {
-            if (!AllowedStatuses.Contains(newStatus))
+            var statusExists = _unitOfWork.Status.GetAll().Any(s => s.Id == newStatusId);
+            if (!statusExists)
                 return Json(new { success = false, message = "Invalid status" });
 
             var order = _unitOfWork.Order.Get(o => o.Id == orderId);
             if (order == null)
                 return Json(new { success = false, message = "Order not found" });
 
-            order.Status = newStatus;
+            order.StatusId = newStatusId;
             _unitOfWork.Order.Update(order);
             _unitOfWork.Save();
 

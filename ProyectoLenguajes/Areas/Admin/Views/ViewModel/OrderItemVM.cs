@@ -1,9 +1,12 @@
 ﻿namespace ProyectoLenguajes.Areas.Admin.Views.ViewModel
 {
-    public class OrderItemVM
+    public class OrderListItemVM
     {
-
-        public string DishName { get; set; }
-        public int Amount { get; set; }
+        public int OrderId { get; set; }
+        public string ClientName { get; set; }
+        public string StatusName { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public List<OrderDishItemVM> Items { get; set; } = new();
     }
+}
 }

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Data.Repository;
+using ProyectoLenguajes.Utilities;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,18 +15,16 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(
     builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//TODO
-builder.Services.AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<ApplicationDbContext>();
-
 builder.Services.ConfigureApplicationCookie(options => {
     options.LoginPath = $"/Identity/Account/Login";
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
+builder.Services.AddScoped<IEmailSender, EmailSender>();
 
 //=======================================CORS
 builder.Services.AddCors(options =>
@@ -63,8 +62,8 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-app.UseAuthorization();
 app.UseAuthentication();
+app.UseAuthorization();
 app.MapRazorPages();
 
 app.MapControllerRoute(
