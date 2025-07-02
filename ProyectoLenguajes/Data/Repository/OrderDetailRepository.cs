@@ -1,6 +1,6 @@
 ﻿using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models;
-using ProyectoPedidosExpress.Models;
+using ProyectoLenguajes.Models;
 
 namespace ProyectoLenguajes.Data.Repository
 {

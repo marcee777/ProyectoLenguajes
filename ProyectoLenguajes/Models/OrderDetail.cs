@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using ProyectoPedidosExpress.Models;
+using ProyectoLenguajes.Models;
 
 namespace ProyectoLenguajes.Models
 {

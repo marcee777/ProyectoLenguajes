@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Security.Policy;
 
-namespace ProyectoPedidosExpress.Models
+namespace ProyectoLenguajes.Models
 {
 
     /**

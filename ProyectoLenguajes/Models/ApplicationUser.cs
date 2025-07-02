@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProyectoLenguajes.Models
 {
-    public class ApplicationUser
+    public class ApplicationUser : IdentityUser
     {
         [Required]
         public string FirstName { get; set; }
@@ -10,11 +11,6 @@ namespace ProyectoLenguajes.Models
         [Required]
         public string LastName { get; set; }
 
-        [Required]
-        [StringLength(11)]
-        [MinLength(11)]
-        [MaxLength(11)]
-        [RegularExpression(@"^\d{1}-\d{4}-\d{4}$", ErrorMessage = "The format must be X-XXXX-XXXX, where X is a digit.")]
-        public string Identification { get; set; } //  "Cédula"
+        public string Address { get; set; } // Solo se llena si es cliente
     }
 }

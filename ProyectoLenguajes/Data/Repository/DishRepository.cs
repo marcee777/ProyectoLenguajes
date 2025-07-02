@@ -1,5 +1,5 @@
 ﻿using ProyectoLenguajes.Data.Repository.Interfaces;
-using ProyectoPedidosExpress.Models;
+using ProyectoLenguajes.Models;
 
 namespace ProyectoLenguajes.Data.Repository
 {

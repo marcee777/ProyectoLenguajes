@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Models;
-using ProyectoPedidosExpress.Models;
 
 namespace ProyectoLenguajes.Data
 {
