@@ -25,24 +25,41 @@ namespace ProyectoLenguajes.Services
                         .Where(o => o.Status.Name != StaticValues.Status_Canceled && o.Status.Name != StaticValues.Status_Delivered)
                         .ToList();
 
-                    var configs = unitOfWork.StatusTimeConfig.GetAll().ToList();
-
-                    foreach (var order in activeOrders)
+                    var config = unitOfWork.StatusTimeConfig.Get(c => true); // Obtiene el único registro
+                    if (config != null)
                     {
-                        var minutesElapsed = (DateTime.Now - order.CreatedAt).TotalMinutes;
-                        var config = configs.FirstOrDefault(c => c.StatusName == order.Status.Name);
-
-                        if (config != null && minutesElapsed >= config.MinutesToNextState)
+                        var sequence = new List<string>
                         {
-                            var nextStatus = unitOfWork.Status.Get(s => s.Name == config.NextStatusName);
-                            if (nextStatus != null)
+                            StaticValues.Status_OnTime,
+                            StaticValues.Status_OverTime,
+                            StaticValues.Status_Delayed
+                        };
+
+                        var minutesPerChange = config.MinutesPerStatusChange;
+
+                        foreach (var order in activeOrders)
+                        {
+                            var currentIndex = sequence.IndexOf(order.Status.Name);
+
+                            if (currentIndex >= 0 && currentIndex < sequence.Count - 1)
                             {
-                                order.StatusId = nextStatus.Id;
+                                var minutesElapsed = (DateTime.Now - order.CreatedAt).TotalMinutes;
+
+                                if (minutesElapsed >= (currentIndex + 1) * minutesPerChange)
+                                {
+                                    var nextStatusName = sequence[currentIndex + 1];
+                                    var nextStatus = unitOfWork.Status.Get(s => s.Name == nextStatusName);
+
+                                    if (nextStatus != null)
+                                    {
+                                        order.StatusId = nextStatus.Id;
+                                    }
+                                }
                             }
                         }
-                    }
 
-                    unitOfWork.Save();
+                        unitOfWork.Save();
+                    }
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(30), stoppingToken);
