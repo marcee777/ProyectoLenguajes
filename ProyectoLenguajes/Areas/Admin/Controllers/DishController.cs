@@ -12,7 +12,7 @@ namespace ProyectoPedidosExpress.Areas.Admin.Controllers
     */
 
     [Area("Admin")]
-    public class PlatoController : Controller
+    public class DishController : Controller
     {
     }
 }

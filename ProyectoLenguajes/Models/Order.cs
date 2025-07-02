@@ -3,22 +3,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ProyectoLenguajes.Models
 {
-    public class Pedido
+    public class Order
     {
         [Key]
         public int Id { get; set; }
 
         [Required]
-        public int ClienteId { get; set; }
-
-
+        public int ClientId { get; set; }
 
         [Required]
-        public DateTime FechaCreacion { get; set; }
-
-        [ForeignKey("EstadoId")]
-        public EstadoPedido Estado { get; set; }
-
-
+        public DateTime CreatedAt { get; set; }
+        public List<OrderDetail> OrderDetails { get; set; }
     }
 }
