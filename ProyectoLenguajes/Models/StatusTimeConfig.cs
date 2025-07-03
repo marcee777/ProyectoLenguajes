@@ -8,6 +8,12 @@ namespace ProyectoLenguajes.Models
         public int Id { get; set; }
 
         [Required]
-        public int MinutesPerStatusChange { get; set; } // Tiempo en minutos entre cada cambio de estado
+        public string StatusName { get; set; } // Ejemplo: "On Time"
+
+        [Required]
+        public int MinutesToNextState { get; set; } // Tiempo en minutos para cambiar
+
+        [Required]
+        public string NextStatusName { get; set; } // Ejemplo: "Over Time"
     }
 }

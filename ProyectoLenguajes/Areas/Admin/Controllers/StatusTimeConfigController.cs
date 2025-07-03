@@ -19,42 +19,28 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         // GET: StatusTimeConfig
         public IActionResult Index()
         {
-            // Para evitar múltiples configuraciones, redirige directo a editar la única configuración
-            var config = _unitOfWork.StatusTimeConfig.Get(c => true);
-            if (config == null)
-            {
-                return RedirectToAction(nameof(Upsert));
-            }
-            else
-            {
-                return RedirectToAction(nameof(Upsert), new { id = config.Id });
-            }
+            var configs = _unitOfWork.StatusTimeConfig.GetAll();
+            return View(configs);
         }
 
-        // GET: StatusTimeConfig/Upsert
+        // GET: StatusTimeConfig/Upsert/5
+        // o GET: StatusTimeConfig/Upsert (para crear)
         public IActionResult Upsert(int? id)
         {
-            StatusTimeConfig config;
-
             if (id == null || id == 0)
             {
-                // Intenta buscar el único registro
-                config = _unitOfWork.StatusTimeConfig.Get(c => true);
-                if (config == null)
-                {
-                    config = new StatusTimeConfig(); // para crear nuevo
-                }
+                // Crear
+                return View(new StatusTimeConfig());
             }
             else
             {
-                config = _unitOfWork.StatusTimeConfig.Get(c => c.Id == id);
+                var config = _unitOfWork.StatusTimeConfig.Get(c => c.Id == id);
                 if (config == null)
                 {
                     return NotFound();
                 }
+                return View(config);
             }
-
-            return View(config);
         }
 
         // POST: StatusTimeConfig/Upsert
@@ -66,24 +52,31 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             {
                 if (config.Id == 0)
                 {
-                    // Antes de agregar, elimina todas las configuraciones viejas por seguridad
-                    var existingConfigs = _unitOfWork.StatusTimeConfig.GetAll();
-                    foreach (var c in existingConfigs)
-                    {
-                        _unitOfWork.StatusTimeConfig.Remove(c);
-                    }
                     _unitOfWork.StatusTimeConfig.Add(config);
                 }
                 else
                 {
                     _unitOfWork.StatusTimeConfig.Update(config);
                 }
-
                 _unitOfWork.Save();
                 return RedirectToAction(nameof(Index));
             }
-
             return View(config);
+        }
+
+        // DELETE: StatusTimeConfig/Delete/5
+        [HttpDelete]
+        public IActionResult Delete(int id)
+        {
+            var config = _unitOfWork.StatusTimeConfig.Get(c => c.Id == id);
+            if (config == null)
+            {
+                return Json(new { success = false, message = "Config not found." });
+            }
+
+            _unitOfWork.StatusTimeConfig.Remove(config);
+            _unitOfWork.Save();
+            return Json(new { success = true, message = "Deleted successfully." });
         }
     }
 }
