@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = StaticValues.Role_Admin)]
+    //[Authorize(Roles = StaticValues.Role_Admin)]
     public class UserController : Controller
     {
         private readonly UserManager<ApplicationUser> _userManager;
@@ -33,7 +33,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             foreach (var user in allUsers)
             {
                 var roles = await _userManager.GetRolesAsync(user);
-                if (roles.Any(r => r == StaticValues.Role_Admin || r == StaticValues.Role_Chef))
+                if (roles.Any(r => r == StaticValues.Role_Admin || r == StaticValues.Role_Kitchen))
                     filteredUsers.Add(user);
             }
 
@@ -44,7 +44,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         public async Task<IActionResult> Upsert(string? id)
         {
             var roles = _roleManager.Roles
-                .Where(r => r.Name == StaticValues.Role_Admin || r.Name == StaticValues.Role_Chef)
+                .Where(r => r.Name == StaticValues.Role_Admin || r.Name == StaticValues.Role_Kitchen)
                 .Select(r => new SelectListItem { Text = r.Name, Value = r.Name }).ToList();
 
             var vm = new UserVM { RoleList = roles };

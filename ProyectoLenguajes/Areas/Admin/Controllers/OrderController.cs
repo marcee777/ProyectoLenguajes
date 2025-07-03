@@ -1,28 +1,36 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Areas.Admin.Views.ViewModel;
+using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Data.Repository.Interfaces;
+using ProyectoLenguajes.Models.ViewModels;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
     // [Authorize(Roles = StaticValues.Role_Admin)] // puedes habilitarlo si quieres
+
     public class OrderController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ApplicationDbContext _dbContext;
 
-        public OrderController(IUnitOfWork unitOfWork)
+        public OrderController(ApplicationDbContext dbContext)
         {
-            _unitOfWork = unitOfWork;
+            _dbContext = dbContext;
         }
 
-        // GET: Admin/Order
-        public IActionResult Index(string? clientId, int? statusId, DateTime? startDate, DateTime? endDate)
+        // GET: /Order
+        public async Task<IActionResult> Index(string clientId, int? statusId, DateTime? startDate, DateTime? endDate)
         {
-            var ordersQuery = _unitOfWork.Order
-                .GetAll(includeProperties: "OrderDetails.Dish,Client,Status")
+            var ordersQuery = _dbContext.Orders
+                .Include(o => o.Client)
+                .Include(o => o.Status)
+                .Include(o => o.OrderDetails)
+                    .ThenInclude(od => od.Dish)
                 .AsQueryable();
 
+            // Aplicar filtros si están presentes
             if (!string.IsNullOrEmpty(clientId))
                 ordersQuery = ordersQuery.Where(o => o.ClientId == clientId);
 
@@ -35,59 +43,45 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             if (endDate.HasValue)
                 ordersQuery = ordersQuery.Where(o => o.CreatedAt <= endDate.Value);
 
-            var orders = ordersQuery
-                .OrderByDescending(o => o.CreatedAt)
-                .Select(o => new OrderListItemVM
-                {
-                    OrderId = o.Id,
-                    ClientName = o.Client.UserName,
-                    StatusName = o.Status.Name,
-                    CreatedAt = o.CreatedAt,
-                    Items = o.OrderDetails.Select(od => new OrderDishItemVM
+            // Construir el ViewModel con los filtros y resultados
+            var model = new OrderFilterVM
+            {
+                ClientId = clientId,
+                StatusId = statusId,
+                StartDate = startDate,
+                EndDate = endDate,
+                Clients = await _dbContext.Users
+                    .Select(u => new SelectListItem
                     {
-                        DishName = od.Dish.Name,
-                        Amount = od.Amount
-                    }).ToList()
-                })
-                .ToList();
+                        Value = u.Id,
+                        Text = u.UserName
+                    }).ToListAsync(),
+                Statuses = await _dbContext.Status
+                    .Select(s => new SelectListItem
+                    {
+                        Value = s.Id.ToString(),
+                        Text = s.Name
+                    }).ToListAsync(),
+                Orders = await ordersQuery.OrderByDescending(o => o.CreatedAt).ToListAsync()
+            };
 
-            //var vm = new OrderIndexVM
-            //{
-            //    Orders = orders,
-            //    ClientList = _unitOfWork.ApplicationUsers.GetAll()
-            //        .Select(u => new SelectListItem { Text = u.UserName, Value = u.Id })
-            //        .ToList(),
-            //    StatusList = _unitOfWork.Status.GetAll()
-            //        .Select(s => new SelectListItem { Text = s.Name, Value = s.Id.ToString() })
-            //        .ToList(),
-            //    SelectedClientId = clientId,
-            //    SelectedStatusId = statusId,
-            //    StartDate = startDate,
-            //    EndDate = endDate
-            //};
-
-            //return View(vm);
-
-            return View();
+            return View(model);
         }
 
-        // POST: Change order status
+        // POST: /Order/UpdateStatus
         [HttpPost]
-        public IActionResult ChangeStatus(int orderId, int newStatusId)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateStatus(int orderId, int newStatusId)
         {
-            var statusExists = _unitOfWork.Status.GetAll().Any(s => s.Id == newStatusId);
-            if (!statusExists)
-                return Json(new { success = false, message = "Invalid status" });
-
-            var order = _unitOfWork.Order.Get(o => o.Id == orderId);
+            var order = await _dbContext.Orders.FindAsync(orderId);
             if (order == null)
-                return Json(new { success = false, message = "Order not found" });
+                return NotFound();
 
             order.StatusId = newStatusId;
-            _unitOfWork.Order.Update(order);
-            _unitOfWork.Save();
+            await _dbContext.SaveChangesAsync();
 
-            return Json(new { success = true, message = "Status updated successfully" });
+            return RedirectToAction(nameof(Index));
         }
     }
+
 }

@@ -108,6 +108,11 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
 
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList {  get; set; }
+
+
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+
         }
 
 
@@ -118,9 +123,9 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                 _roleManager.CreateAsync(new IdentityRole(Utilities.StaticValues.Role_Admin)).GetAwaiter().GetResult();
             }
 
-            if (!_roleManager.RoleExistsAsync(Utilities.StaticValues.Role_Chef).GetAwaiter().GetResult())
+            if (!_roleManager.RoleExistsAsync(Utilities.StaticValues.Role_Kitchen).GetAwaiter().GetResult())
             {
-                _roleManager.CreateAsync(new IdentityRole(Utilities.StaticValues.Role_Chef)).GetAwaiter().GetResult();
+                _roleManager.CreateAsync(new IdentityRole(Utilities.StaticValues.Role_Kitchen)).GetAwaiter().GetResult();
             }
 
             if (!_roleManager.RoleExistsAsync(Utilities.StaticValues.Role_Customer).GetAwaiter().GetResult())
@@ -150,6 +155,10 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
+                user.FirstName = Input.FirstName;
+                user.LastName = Input.LastName;
+
+
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -158,7 +167,17 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                 {
                     _logger.LogInformation("User created a new account with password.");
 
-                    var userId = await _userManager.GetUserIdAsync(user);
+                    if (!String.IsNullOrEmpty(Input.Role))
+                    {
+                        await _userManager.AddToRoleAsync(user, Input.Role);
+                    }
+                    else 
+                    {
+                        await _userManager.AddToRoleAsync(user, Utilities.StaticValues.Role_Customer);
+                    }
+
+
+                        var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
