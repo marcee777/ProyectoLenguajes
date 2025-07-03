@@ -1,8 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
-using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Services
@@ -42,7 +39,7 @@ namespace ProyectoLenguajes.Services
                             if (order.Status.Name == StaticValues.Status_OnTime &&
                                 order.Status.TimeToNextStatus.HasValue)
                             {
-                                var minutosPasados = (DateTime.Now - order.CreatedAt).TotalMinutes;
+                                var minutosPasados = (DateTime.Now - order.LastStatusChange).TotalMinutes;
                                 if (minutosPasados >= order.Status.TimeToNextStatus.Value)
                                 {
                                     var overTimeStatus = await dbContext.Status
@@ -52,7 +49,7 @@ namespace ProyectoLenguajes.Services
                                     {
                                         order.StatusId = overTimeStatus.Id;
                                         order.LastStatusChange = DateTime.Now;
-                                        _logger.LogInformation($"Orden {order.Id} cambió de OnTime a OverTime.");
+                                        _logger.LogInformation($"Order {order.Id} changed from On Time to Over Time.");
                                     }
                                 }
                             }
@@ -69,7 +66,7 @@ namespace ProyectoLenguajes.Services
                                     {
                                         order.StatusId = delayedStatus.Id;
                                         order.LastStatusChange = DateTime.Now;
-                                        _logger.LogInformation($"Orden {order.Id} cambió de OverTime a Delayed.");
+                                        _logger.LogInformation($"Order {order.Id} changed from Over Time to Delayed.");
                                     }
                                 }
                             }
@@ -80,7 +77,7 @@ namespace ProyectoLenguajes.Services
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error en OrderStatusUpdaterService");
+                    _logger.LogError(ex, "Error in OrderStatusUpdaterService");
                 }
 
                 await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);

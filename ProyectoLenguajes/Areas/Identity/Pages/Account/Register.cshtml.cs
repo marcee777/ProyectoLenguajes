@@ -104,11 +104,11 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
             [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
 
-            public string? Role {  get; set; }
+            [Required]
+            public string Role {  get; set; }
 
             [ValidateNever]
             public IEnumerable<SelectListItem> RoleList {  get; set; }
-
 
             public string FirstName { get; set; }
             public string LastName { get; set; }
@@ -135,13 +135,15 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
 
             Input = new()
             {
-                RoleList = _roleManager.Roles.Select(x => x.Name).Select(i => new SelectListItem
-                {
-                    Text = i,
-                    Value = i
-                })
+                RoleList = _roleManager.Roles
+                    .Where(r => r.Name != Utilities.StaticValues.Role_Customer) // Excluir el rol de customer
+                    .Select(x => x.Name)
+                    .Select(i => new SelectListItem
+                    {
+                        Text = i,
+                        Value = i
+                    })
             };
-
 
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
@@ -158,7 +160,6 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                 user.FirstName = Input.FirstName;
                 user.LastName = Input.LastName;
 
-
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
@@ -171,14 +172,8 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                     {
                         await _userManager.AddToRoleAsync(user, Input.Role);
                     }
-                    else 
-                    {
-                        //Campo requerido y quitar el por defecto
-                        await _userManager.AddToRoleAsync(user, Utilities.StaticValues.Role_Customer);
-                    }
 
-
-                        var userId = await _userManager.GetUserIdAsync(user);
+                    var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(

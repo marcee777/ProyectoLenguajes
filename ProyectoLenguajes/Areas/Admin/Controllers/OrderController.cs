@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using ProyectoLenguajes.Areas.Admin.Views.ViewModel;
 using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models.ViewModels;
