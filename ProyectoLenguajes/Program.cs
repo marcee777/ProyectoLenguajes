@@ -6,6 +6,7 @@ using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Data.Repository;
 using ProyectoLenguajes.Utilities;
 using ProyectoLenguajes.Services;
+using ProyectoLenguajes.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,7 @@ builder.Services.ConfigureApplicationCookie(options => {
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
+//builder.Services.AddScoped<>
 
 builder.Services.AddHostedService<OrderStatusBackgroundService>();
 

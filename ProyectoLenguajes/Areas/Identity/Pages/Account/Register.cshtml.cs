@@ -173,6 +173,7 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                     }
                     else 
                     {
+                        //Campo requerido y quitar el por defecto
                         await _userManager.AddToRoleAsync(user, Utilities.StaticValues.Role_Customer);
                     }
 

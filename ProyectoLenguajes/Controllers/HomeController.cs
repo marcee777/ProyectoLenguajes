@@ -1,12 +1,15 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoLenguajes.Models;
+
 
 namespace ProyectoLenguajes.Controllers;
 
 public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
+
 
     public HomeController(ILogger<HomeController> logger)
     {
