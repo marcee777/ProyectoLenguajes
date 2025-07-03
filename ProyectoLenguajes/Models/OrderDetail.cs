@@ -1,6 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
+using System.Runtime.ConstrainedExecution;
 using ProyectoLenguajes.Models;
+using ProyectoLenguajes.Models.ViewModels;
 
 namespace ProyectoLenguajes.Models
 {
@@ -21,6 +24,8 @@ namespace ProyectoLenguajes.Models
         public Order Order { get; set; }
 
         [Required]
+        //validación de rango para evitar valores negativos o cero
+        [Range(1, int.MaxValue, ErrorMessage = "Amount must be at least 1")]
         public int Amount { get; set; }
 
     }

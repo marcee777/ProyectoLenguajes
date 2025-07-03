@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoLenguajes.Models
 {
@@ -25,6 +24,11 @@ namespace ProyectoLenguajes.Models
         public Status Status { get; set; } // Navigation property
 
         public List<OrderDetail> OrderDetails { get; set; }
+
+        public Order()
+        {
+            CreatedAt = DateTime.Now;
+        }
 
     }
 }
