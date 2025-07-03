@@ -275,6 +275,9 @@ namespace ProyectoLenguajes.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateTime>("LastStatusChange")
+                        .HasColumnType("datetime2");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -319,6 +322,12 @@ namespace ProyectoLenguajes.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("NextStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeToNextStatus")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Status");
@@ -327,12 +336,16 @@ namespace ProyectoLenguajes.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "On Time"
+                            Name = "On Time",
+                            NextStatusId = 2,
+                            TimeToNextStatus = 10
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Over Time"
+                            Name = "Over Time",
+                            NextStatusId = 3,
+                            TimeToNextStatus = 15
                         },
                         new
                         {
@@ -349,30 +362,6 @@ namespace ProyectoLenguajes.Migrations
                             Id = 5,
                             Name = "Delivered"
                         });
-                });
-
-            modelBuilder.Entity("ProyectoLenguajes.Models.StatusTimeConfig", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("MinutesToNextState")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NextStatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StatusTimeConfigs");
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.ApplicationUser", b =>

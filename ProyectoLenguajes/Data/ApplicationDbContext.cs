@@ -17,8 +17,6 @@ namespace ProyectoLenguajes.Data
         public DbSet<Dish> Dishes { get; set; }
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<Status> Status { get; set; }
-        public DbSet<StatusTimeConfig> StatusTimeConfigs { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -30,12 +28,11 @@ namespace ProyectoLenguajes.Data
 
             // Semilla para estados 
             modelBuilder.Entity<Status>().HasData(
-
-                new Status { Id = 1, Name = StaticValues.Status_OnTime},
-                new Status { Id = 2, Name = StaticValues.Status_OverTime},
-                new Status { Id = 3, Name = StaticValues.Status_Delayed},
-                new Status { Id = 4, Name = StaticValues.Status_Canceled},
-                new Status { Id = 5, Name = StaticValues.Status_Delivered}
+                new Status { Id = 1, Name = StaticValues.Status_OnTime, TimeToNextStatus = 10, NextStatusId = 2 },
+                new Status { Id = 2, Name = StaticValues.Status_OverTime, TimeToNextStatus = 15, NextStatusId = 3 },
+                new Status { Id = 3, Name = StaticValues.Status_Delayed, TimeToNextStatus = null, NextStatusId = null },
+                new Status { Id = 4, Name = StaticValues.Status_Canceled, TimeToNextStatus = null, NextStatusId = null },
+                new Status { Id = 5, Name = StaticValues.Status_Delivered, TimeToNextStatus = null, NextStatusId = null }
             );
         }
     }

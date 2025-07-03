@@ -12,7 +12,7 @@ namespace ProyectoLenguajes.Models
         public string ClientId { get; set; } // FK a ApplicationUser.Id (que es string)
 
         [ForeignKey("ClientId")]
-        public ApplicationUser Client { get; set; } // navigation property
+        public ApplicationUser Client { get; set; } // Navigation property
 
         [Required]
         public DateTime CreatedAt { get; set; }
@@ -23,11 +23,14 @@ namespace ProyectoLenguajes.Models
         [ForeignKey("StatusId")]
         public Status Status { get; set; } // Navigation property
 
+        public DateTime LastStatusChange { get; set; }
+
         public List<OrderDetail> OrderDetails { get; set; }
 
         public Order()
         {
             CreatedAt = DateTime.Now;
+            LastStatusChange = CreatedAt;
         }
 
     }

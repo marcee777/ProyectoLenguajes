@@ -6,6 +6,7 @@ namespace ProyectoLenguajes.Data.Repository
     public class DishRepository : Repository<Dish>, IDishRepository
     {
         private ApplicationDbContext _db;
+
         public DishRepository(ApplicationDbContext db) : base(db)
         {
             _db = db;

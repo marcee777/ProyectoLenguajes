@@ -1,0 +1,44 @@
+﻿@model List<ProyectoLenguajes.Models.Status>
+
+@{
+    ViewData["Title"] = "Configurar tiempos automáticos";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (ViewBag.SuccessMessage != null)
+{
+    <div class="alert alert-success">
+        @ViewBag.SuccessMessage
+    </div>
+}
+
+<form method="post">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Estado</th>
+                <th>Tiempo para cambiar (min)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                <tr>
+                    <td>
+                        @Model[i].Name
+                        <input type="hidden" name="statuses[@i].Id" value="@Model[i].Id" />
+                    </td>
+                    <td>
+                        <input type="number" class="form-control"
+                               name="statuses[@i].TimeToNextStatus"
+                               value="@Model[i].TimeToNextStatus"
+                               min="0" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-primary">Guardar</button>
+</form>

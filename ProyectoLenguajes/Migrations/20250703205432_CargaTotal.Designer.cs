@@ -12,8 +12,8 @@ using ProyectoLenguajes.Data;
 namespace ProyectoLenguajes.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250702211316_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250703205432_CargaTotal")]
+    partial class CargaTotal
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -278,10 +278,10 @@ namespace ProyectoLenguajes.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
+                    b.Property<DateTime>("LastStatusChange")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("TimeToChangeStatusMinutes")
+                    b.Property<int>("StatusId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -325,6 +325,12 @@ namespace ProyectoLenguajes.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("NextStatusId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TimeToNextStatus")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Status");
@@ -333,12 +339,16 @@ namespace ProyectoLenguajes.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "On Time"
+                            Name = "On Time",
+                            NextStatusId = 2,
+                            TimeToNextStatus = 10
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Over Time"
+                            Name = "Over Time",
+                            NextStatusId = 3,
+                            TimeToNextStatus = 15
                         },
                         new
                         {
@@ -357,45 +367,24 @@ namespace ProyectoLenguajes.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ProyectoLenguajes.Models.StatusTimeConfig", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("MinutesToNextState")
-                        .HasColumnType("int");
-
-                    b.Property<string>("NextStatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("StatusName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StatusTimeConfigs");
-                });
-
             modelBuilder.Entity("ProyectoLenguajes.Models.ApplicationUser", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("Address")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
                 });

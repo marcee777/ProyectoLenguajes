@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyectoLenguajes.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class CargaTotal : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -33,9 +33,9 @@ namespace ProyectoLenguajes.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Discriminator = table.Column<string>(type: "nvarchar(21)", maxLength: 21, nullable: false),
-                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -79,26 +79,13 @@ namespace ProyectoLenguajes.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TimeToNextStatus = table.Column<int>(type: "int", nullable: true),
+                    NextStatusId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Status", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "StatusTimeConfigs",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    StatusName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    MinutesToNextState = table.Column<int>(type: "int", nullable: false),
-                    NextStatusName = table.Column<string>(type: "nvarchar(max)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_StatusTimeConfigs", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,7 +203,7 @@ namespace ProyectoLenguajes.Migrations
                     ClientId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     StatusId = table.Column<int>(type: "int", nullable: false),
-                    TimeToChangeStatusMinutes = table.Column<int>(type: "int", nullable: false)
+                    LastStatusChange = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -262,14 +249,14 @@ namespace ProyectoLenguajes.Migrations
 
             migrationBuilder.InsertData(
                 table: "Status",
-                columns: new[] { "Id", "Name" },
+                columns: new[] { "Id", "Name", "NextStatusId", "TimeToNextStatus" },
                 values: new object[,]
                 {
-                    { 1, "On Time" },
-                    { 2, "Over Time" },
-                    { 3, "Delayed" },
-                    { 4, "Canceled" },
-                    { 5, "Delivered" }
+                    { 1, "On Time", 2, 10 },
+                    { 2, "Over Time", 3, 15 },
+                    { 3, "Delayed", null, null },
+                    { 4, "Canceled", null, null },
+                    { 5, "Delivered", null, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -347,9 +334,6 @@ namespace ProyectoLenguajes.Migrations
 
             migrationBuilder.DropTable(
                 name: "OrderDetails");
-
-            migrationBuilder.DropTable(
-                name: "StatusTimeConfigs");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

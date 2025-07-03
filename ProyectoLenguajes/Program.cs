@@ -27,9 +27,8 @@ builder.Services.ConfigureApplicationCookie(options => {
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
-//builder.Services.AddScoped<>
 
-builder.Services.AddHostedService<OrderStatusBackgroundService>();
+builder.Services.AddHostedService<OrderStatusUpdaterService>();
 
 //=======================================CORS
 builder.Services.AddCors(options =>
