@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using ProyectoLenguajes.Models;
 
-namespace ProyectoLenguajes.Models.ViewModels
+namespace ProyectoLenguajes.Areas.Admin.Models.ViewModel
 {
     public class OrderFilterVM
     {
