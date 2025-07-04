@@ -1,8 +1,113 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+    html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    main {
+        flex: 1 0 auto;
+    }
+
+    .background-image {
+        background-image: url('/images/wallpaper/homeWallpaper.jpg'); /* Asegúrate de que exista en wwwroot/images */
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        height: calc(100vh - 112px); /* Ajusta si navbar/footer tienen diferente altura */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .logo-container {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-130%);
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .logo-container img {
+        width: 150px;
+        height: 150px;
+        filter: drop-shadow(0 0 10px rgba(0,0,0,0.3));
+    }
+
+    .welcome-container {
+        background-color: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(8px);
+        border-radius: 1rem;
+        padding: 3rem;
+        text-align: center;
+        color: white;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        max-width: 700px;
+        width: 100%;
+        z-index: 1;
+        position: relative;
+    }
+
+    .restaurant-name {
+        font-size: 3rem;
+        font-weight: bold;
+        text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.5);
+    }
+
+    .lead {
+        font-size: 1.3rem;
+        font-weight: 300;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-outline-light:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+
+    html, body {
+        height: 100%;
+    }
+
+    body {
+        display: flex;
+        flex-direction: column;
+    }
+
+    main {
+        flex: 1 0 auto;
+    }
+
+    footer {
+        flex-shrink: 0;
+        background-color: #f8f9fa;
+        padding: 1rem;
+        text-align: center;
+        color: #6c757d;
+        font-size: 0.9rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+</style>
+
+<div class="background-image">
+    <div class="logo-container">
+        <img src="/images/Logo/LogoHanami.png" alt="Hanami Logo" />
+    </div>
+
+    <div class="welcome-container">
+        <div class="restaurant-name">Hanami</div>
+        <p class="lead">Authentic Japanese flavors delivered to your door.</p>
+    </div>
 </div>
+
+@* <div style="height: 100px;"></div> *@
