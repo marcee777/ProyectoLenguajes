@@ -28,6 +28,22 @@ builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
 
+// agregamos esto para lo de kitchen/order
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+}); 
+
+////////////////////////////////////
+
+
+
+
 builder.Services.AddHostedService<OrderStatusUpdaterService>();
 
 //=======================================CORS
@@ -62,6 +78,8 @@ app.UseCors("AllowAnyOrigin");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+app.UseSession();  // <<<< esto es de kitchen/order
 
 app.UseRouting();
 

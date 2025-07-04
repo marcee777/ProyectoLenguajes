@@ -1,0 +1,68 @@
+﻿@model List<ProyectoLenguajes.Models.ViewModels.OrderVM>
+
+@using ProyectoLenguajes.Utilities
+
+@{
+    ViewData["Title"] = "Pedidos Activos - Cocina";
+}
+
+<h1 class="mb-4">Pedidos Activos</h1>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay pedidos activos en este momento.</div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        @foreach (var orderVm in Model)
+        {
+            var estado = orderVm.Order.Status.Name;
+            string bgColorClass = estado switch
+            {
+                StaticValues.Status_OnTime => "bg-success text-white",
+                StaticValues.Status_OverTime => "bg-warning",
+                StaticValues.Status_Delayed => "bg-danger text-white",
+                _ => "bg-secondary text-white"
+            };
+            <div class="col">
+                <div class="card @bgColorClass h-100 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>Orden #@orderVm.Order.Id</strong>
+                        <span>Creada: @orderVm.Order.CreatedAt.ToString("g")</span>
+                    </div>
+                    <div class="card-body">
+                        <p><strong>Cliente:</strong> @orderVm.Order.Client.FirstName @orderVm.Order.Client.LastName</p>
+
+                        <h5>Platos:</h5>
+                        <ul class="list-group mb-3">
+                            @foreach (var detail in orderVm.OrderDetails)
+                            {
+                                <li class="list-group-item">@detail.Dish.Name (x@detail.Amount)</li>
+                            }
+                        </ul>
+
+                        <form asp-action="MarkAsDelivered" method="post">
+                            <input type="hidden" name="id" value="@orderVm.Order.Id" />
+                            <button type="submit" class="btn btn-light btn-sm w-100">Marcar como Entregado</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (ViewBag.HasMoreOrders == true)
+    {
+        <div class="alert alert-info mt-3">
+            Hay más pedidos que los mostrados en pantalla.
+        </div>
+    }
+}
+
+@if (ViewBag.LastDeliveredOrderId != null)
+{
+    <form asp-action="UndoLastDelivered" method="post" class="mt-4">
+        <button type="submit" class="btn btn-warning">Deshacer último pedido entregado</button>
+    </form>
+}
