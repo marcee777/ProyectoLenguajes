@@ -21,40 +21,62 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         // GET: Admin/User
         public async Task<IActionResult> Index(string search)
         {
-            var users = _userManager.Users;
+            var users = await _userManager.Users.ToListAsync();
 
+            var userList = users
+                .Select(async userIdentity =>
+                {
+                    var user = userIdentity as ApplicationUser;
+                    if (user != null)
+                    {
+                        var roles = await _userManager.GetRolesAsync(user);
+                        return new
+                        {
+                            User = user,
+                            Roles = roles
+                        };
+                    }
+                    return null;
+                })
+                .Select(t => t.Result)
+                .Where(u => u != null)
+                .ToList();
+
+            // Filtrar si hay búsqueda
             if (!string.IsNullOrEmpty(search))
             {
-                // Aquí hay un problema porque IdentityUser no tiene FirstName ni LastName,
-                // así que para filtrar por esos campos tendrías que castear o filtrar en memoria.
-                // Ejemplo simple (¡ojo, podría afectar performance!):
-                var userList = await users.ToListAsync();
-                var filtered = userList
-                    .Cast<ApplicationUser>()
-                    .Where(u => u.FirstName.Contains(search) ||
-                                u.LastName.Contains(search) ||
-                                u.Email.Contains(search))
+                userList = userList
+                    .Where(u => u.User.FirstName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                             || u.User.LastName.Contains(search, StringComparison.OrdinalIgnoreCase)
+                             || u.User.Email.Contains(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-                return View(filtered);
             }
 
-            var userListAll = await users.ToListAsync();
-            return View(userListAll.Cast<ApplicationUser>().ToList());
+            // Preparar modelo
+            var model = userList.Select(u => new UserVM
+            {
+                Id = u.User.Id,
+                FirstName = u.User.FirstName,
+                LastName = u.User.LastName,
+                Email = u.User.Email,
+                Address = u.User.Address,
+                Roles = u.Roles,
+                IsBlocked = u.User.LockoutEnd.HasValue && u.User.LockoutEnd > DateTimeOffset.UtcNow
+            }).ToList();
+
+            return View(model);
         }
 
         // GET: Admin/User/Update/5
         public async Task<IActionResult> Update(string id)
         {
-            if (id == null)
-                return NotFound();
+            if (id == null) return NotFound();
 
             var userIdentity = await _userManager.FindByIdAsync(id);
-            if (userIdentity == null)
-                return NotFound();
+            if (userIdentity == null) return NotFound();
 
             var user = userIdentity as ApplicationUser;
-            if (user == null)
-                return BadRequest("Usuario no es del tipo ApplicationUser.");
+            if (user == null) return BadRequest("User is not of type ApplicationUser.");
 
             var roles = await _userManager.GetRolesAsync(userIdentity);
 
@@ -65,7 +87,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 LastName = user.LastName,
                 Email = user.Email,
                 Address = user.Address,
-                Roles = roles
+                Roles = roles,
+                IsBlocked = user.LockoutEnd.HasValue && user.LockoutEnd > DateTimeOffset.UtcNow
             };
 
             return View(model);
@@ -77,23 +100,15 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         public async Task<IActionResult> Update(UserVM model)
         {
             if (!ModelState.IsValid)
-            {
                 return View(model);
-            }
 
             var userIdentity = await _userManager.FindByIdAsync(model.Id);
-
             if (userIdentity == null)
-            {
                 return NotFound();
-            }
 
             var user = userIdentity as ApplicationUser;
-
             if (user == null)
-            {
-                return BadRequest("Usuario no es del tipo ApplicationUser.");
-            }
+                return BadRequest("User is not of type ApplicationUser.");
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -103,14 +118,10 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             var result = await _userManager.UpdateAsync(user);
             if (result.Succeeded)
-            {
                 return RedirectToAction(nameof(Index));
-            }
 
             foreach (var error in result.Errors)
-            {
                 ModelState.AddModelError(string.Empty, error.Description);
-            }
 
             return View(model);
         }
@@ -121,35 +132,67 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(string id)
         {
             if (id == null)
-            {
                 return RedirectToAction(nameof(Index));
-            }  
 
             var userIdentity = await _userManager.FindByIdAsync(id);
-
             if (userIdentity == null)
-            {
                 return RedirectToAction(nameof(Index));
-            }
 
             var user = userIdentity as ApplicationUser;
-
             if (user == null)
-            {
                 return RedirectToAction(nameof(Index));
-            }
 
             var result = await _userManager.DeleteAsync(user);
 
-            if (result.Succeeded)
+            TempData[result.Succeeded ? "success" : "error"] =
+                result.Succeeded ? "User deleted successfully." : "Failed to delete user.";
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/User/Block/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Block(string id)
+        {
+            var userIdentity = await _userManager.FindByIdAsync(id);
+            if (userIdentity == null) return RedirectToAction(nameof(Index));
+
+            var user = userIdentity as ApplicationUser;
+            if (user == null) return RedirectToAction(nameof(Index));
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Customer"))
             {
-                TempData["success"] = "Usuario eliminado correctamente.";
-            }
-            else
-            {
-                TempData["error"] = "No se pudo eliminar el usuario.";
+                TempData["error"] = "Only customers can be blocked.";
+                return RedirectToAction(nameof(Index));
             }
 
+            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(1));
+            TempData["success"] = "Customer blocked.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        // POST: Admin/User/Unblock/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unblock(string id)
+        {
+            var userIdentity = await _userManager.FindByIdAsync(id);
+            if (userIdentity == null) return RedirectToAction(nameof(Index));
+
+            var user = userIdentity as ApplicationUser;
+            if (user == null) return RedirectToAction(nameof(Index));
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Customer"))
+            {
+                TempData["error"] = "Only customers can be unblocked.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            await _userManager.SetLockoutEndDateAsync(user, null);
+            TempData["success"] = "Customer unblocked.";
             return RedirectToAction(nameof(Index));
         }
     }

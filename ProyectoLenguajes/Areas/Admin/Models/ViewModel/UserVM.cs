@@ -22,5 +22,6 @@ namespace ProyectoLenguajes.Areas.Admin.Models.ViewModels
 
         public IList<string> Roles { get; set; } = new List<string>();
 
+        public bool IsBlocked { get; set; }
     }
 }
