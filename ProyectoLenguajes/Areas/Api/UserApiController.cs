@@ -3,7 +3,8 @@ using ProyectoLenguajes.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using ProyectoLenguajes.Models.ApiModels;
-using Microsoft.Extensions.DependencyInjection; // Para acceder a RoleManager dinámicamente
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authorization; // Para acceder a RoleManager dinámicamente
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
@@ -64,7 +65,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // Obtener datos del usuario (requiere autenticación)
-        //[Authorize]
+        [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -88,7 +89,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // Actualizar datos del usuario (nombre, dirección y opcionalmente contraseña)
-        //[Authorize]
+        [Authorize]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
         {

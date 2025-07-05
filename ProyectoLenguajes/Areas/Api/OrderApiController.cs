@@ -25,14 +25,15 @@ namespace ProyectoLenguajes.Areas.Api
             _context = context;
         }
 
-
         // CLIENTE: Obtener carrito actual (orden con estado "OnTime")
-        //[Authorize]
+        [Authorize]
         [HttpGet("my-active")]
         public async Task<IActionResult> GetMyActiveOrder()
         {
-            var userId = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
             var o = await _context.Orders
                 .Include(o => o.OrderDetails)
@@ -66,16 +67,27 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Agregar plato al carrito
-        //[Authorize]
+        [Authorize]
         [HttpPost("add-item")]
         public async Task<IActionResult> AddItem([FromForm] int DishId, [FromForm] int Amount)
         {
             if (Amount <= 0)
                 return BadRequest(new { Success = false, Message = "Amount must be greater than zero" });
 
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
             if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
+                return Unauthorized(new { message = "User ID is null or empty." });
+
+            // Verificar si el usuario existe por su ID
+            var userExists = await _context.Users.AnyAsync(u => u.Id == userId);
+            if (!userExists)
+                return BadRequest(new { message = "User does not exist in database.", userId });
+
+            // Validar que el plato exista y esté activo (si tienes esa propiedad)
+            var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == DishId /* && d.IsActive */);
+            if (dish == null /* || !dish.IsActive */)
+                return BadRequest(new { Success = false, Message = "Dish not found or inactive" });
 
             var status = await _context.Status.FirstOrDefaultAsync(s => s.Name == StaticValues.Status_OnTime);
             if (status == null)
@@ -114,11 +126,12 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Eliminar ítem del carrito
-        //[Authorize]
+        [Authorize]
         [HttpDelete("remove-item/{dishId}")]
         public async Task<IActionResult> RemoveItem(int dishId)
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
@@ -144,11 +157,12 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Confirmar pedido (cambiar estado de 'OnTime' a otro)
-        //[Authorize]
+        [Authorize]
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmOrder()
         {
-            var userId = User.Identity?.Name;
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
@@ -160,7 +174,6 @@ namespace ProyectoLenguajes.Areas.Api
             if (order == null)
                 return NotFound(new { Success = false, Message = "No active order to confirm" });
 
-            // Cambiar estado a confirmado (ejemplo: "Confirmed" o "InProgress")
             var confirmedStatus = await _context.Status.FirstOrDefaultAsync(s => s.Name == StaticValues.Status_Confirmed);
             if (confirmedStatus == null)
                 return BadRequest(new { Success = false, Message = "Confirmed status not found" });

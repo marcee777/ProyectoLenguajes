@@ -2,12 +2,8 @@
 
 namespace ProyectoLenguajes.Models.ApiModels
 {
-    public class RegisterUserDto
+    public class UpdateUserDto
     {
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; } = null!;
-
         [Required]
         [StringLength(100)]
         public string FirstName { get; set; } = null!;
@@ -19,10 +15,7 @@ namespace ProyectoLenguajes.Models.ApiModels
         [StringLength(250)]
         public string? Address { get; set; }
 
-        [Required]
         [StringLength(100, MinimumLength = 6)]
-        public string Password { get; set; } = null!;
+        public string? NewPassword { get; set; }
     }
-
-   
 }
