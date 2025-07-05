@@ -3,8 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProyectoLenguajes </title>
-    <!--CAMBIAR TÍTULO-->
+    <title>@ViewData["Title"] - Hanami </title>
 
     <!-- Bootstrap y estilos -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -54,7 +53,12 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light custom-orange-navbar border-bottom shadow-sm mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Hanami</a>
+                
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/Logo/LogoHanami.png" alt="Logo" style="height: 30px; width: auto;" class="me-2" />
+                    Hanami
+                </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -63,8 +67,29 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>                      
+                        </li>  
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin"  asp-controller="Dish" asp-action="Index">Dishes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">Orders</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="User" asp-action="Index">Clients</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Admin" asp-controller="Status" asp-action="Index">Status</a>
+                        </li>
+                        @* agregar el resto cuando estén, manejar que se vean o no según el usuario (admin/cocina) *@
+
+                        @* De mientras para ir a Kitchen *@
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Kitchen" asp-controller="Order" asp-action="Index">Temp:Kitchen(Orders)</a>
+                        </li>
                     </ul>
+
+
+
 
                     <partial name="_LoginPartial"></partial>
                 </div>

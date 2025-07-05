@@ -4,60 +4,62 @@
     ViewData["Title"] = "Update User";
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container my-4" style="max-width: 600px;">
+    <h2 class="mb-4 text-primary text-center">@ViewData["Title"]</h2>
 
-<form asp-action="Update" method="post">
-    @Html.AntiForgeryToken()
+    <form asp-action="Update" method="post" novalidate>
+        @Html.AntiForgeryToken()
 
-    <input type="hidden" asp-for="Id" />
+        <input type="hidden" asp-for="Id" />
 
-    <div class="form-group">
-        <label asp-for="FirstName"></label>
-        <input asp-for="FirstName" class="form-control" />
-        <span asp-validation-for="FirstName" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="FirstName" class="form-label small"></label>
+            <input asp-for="FirstName" class="form-control form-control-sm border border-warning-subtle bg-light" />
+            <span asp-validation-for="FirstName" class="text-danger small"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="LastName"></label>
-        <input asp-for="LastName" class="form-control" />
-        <span asp-validation-for="LastName" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="LastName" class="form-label small"></label>
+            <input asp-for="LastName" class="form-control form-control-sm border border-warning-subtle bg-light" />
+            <span asp-validation-for="LastName" class="text-danger small"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label small"></label>
+            <input asp-for="Email" class="form-control form-control-sm border border-warning-subtle bg-light" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
 
-    <div class="form-group">
-        <label asp-for="Address"></label>
-        <input asp-for="Address" class="form-control" />
-        <span asp-validation-for="Address" class="text-danger"></span>
-    </div>
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label small"></label>
+            <input asp-for="Address" class="form-control form-control-sm border border-warning-subtle bg-light" />
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
 
-    <div class="form-group">
-        <label>Roles</label>
-        <ul>
-            @if (Model.Roles != null && Model.Roles.Any())
-            {
-                foreach (var role in Model.Roles)
+        <div class="mb-3">
+            <label class="form-label small">Roles</label>
+            <ul class="ps-3">
+                @if (Model.Roles != null && Model.Roles.Any())
                 {
-                    <li>@role</li>
+                    foreach (var role in Model.Roles)
+                    {
+                        <li>@role</li>
+                    }
                 }
-            }
-            else
-            {
-                <li>No roles assigned</li>
-            }
-        </ul>
-    </div>
+                else
+                {
+                    <li>No roles assigned</li>
+                }
+            </ul>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>
+        <div class="d-flex justify-content-end gap-2">
+            <a asp-action="Index" class="btn btn-secondary btn-sm">Cancel</a>
+            <button type="submit" class="btn btn-warning btn-sm">Save</button>
+        </div>
+    </form>
+</div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

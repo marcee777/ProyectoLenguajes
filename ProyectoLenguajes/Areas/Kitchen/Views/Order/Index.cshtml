@@ -1,68 +1,72 @@
 ﻿@model List<ProyectoLenguajes.Models.ViewModels.OrderVM>
-
 @using ProyectoLenguajes.Utilities
 
 @{
-    ViewData["Title"] = "Pedidos Activos - Cocina";
+    ViewData["Title"] = "Active Orders - Kitchen";
 }
 
-<h1 class="mb-4">Pedidos Activos</h1>
+<div class="container my-5">
+    <h1 class="mb-4 text-center">Active Orders</h1>
 
-@if (!Model.Any())
-{
-    <div class="alert alert-info">No hay pedidos activos en este momento.</div>
-}
-else
-{
-    <div class="row row-cols-1 row-cols-md-2 g-4">
-        @foreach (var orderVm in Model)
-        {
-            var estado = orderVm.Order.Status.Name;
-            string bgColorClass = estado switch
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info text-center">There are no active orders at the moment.</div>
+    }
+    else
+    {
+        <div class="d-flex flex-column align-items-center gap-4">
+            @foreach (var orderVm in Model)
             {
-                StaticValues.Status_OnTime => "bg-success text-white",
-                StaticValues.Status_OverTime => "bg-warning",
-                StaticValues.Status_Delayed => "bg-danger text-white",
-                _ => "bg-secondary text-white"
-            };
-            <div class="col">
-                <div class="card @bgColorClass h-100 shadow-sm">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <strong>Orden #@orderVm.Order.Id</strong>
-                        <span>Creada: @orderVm.Order.CreatedAt.ToString("g")</span>
-                    </div>
-                    <div class="card-body">
-                        <p><strong>Cliente:</strong> @orderVm.Order.Client.FirstName @orderVm.Order.Client.LastName</p>
+                var estado = orderVm.Order.Status.Name;
+                string bgColorClass = estado switch
+                {
+                    StaticValues.Status_OnTime => "bg-success text-white",
+                    StaticValues.Status_OverTime => "bg-warning",
+                    StaticValues.Status_Delayed => "bg-danger text-white",
+                    _ => "bg-secondary text-white"
+                };
 
-                        <h5>Platos:</h5>
+                <div class="card @bgColorClass shadow-sm w-100" style="max-width: 600px;">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <strong>ORDER #@orderVm.Order.Id</strong>
+                        <span>Created: @orderVm.Order.CreatedAt.ToString("g")</span>
+                    </div>
+                    <div class="card-body bg-white text-dark">
+                        <p><strong>Client:</strong> @orderVm.Order.Client.FirstName @orderVm.Order.Client.LastName</p>
+
+                        <h5>Dishes:</h5>
                         <ul class="list-group mb-3">
                             @foreach (var detail in orderVm.OrderDetails)
                             {
-                                <li class="list-group-item">@detail.Dish.Name x @detail.Amount)</li>
+                                <li class="list-group-item">@detail.Dish.Name x @detail.Amount</li>
                             }
                         </ul>
 
                         <form asp-action="MarkAsDelivered" method="post">
                             <input type="hidden" name="id" value="@orderVm.Order.Id" />
-                            <button type="submit" class="btn btn-light btn-sm w-100">Marcar como Entregado</button>
+                            <button type="submit" class="btn btn-dark btn-sm w-100">Mark as Delivered</button>
                         </form>
                     </div>
                 </div>
+            }
+        </div>
+
+        @if (ViewBag.HasMoreOrders == true)
+        {
+            <div class="alert alert-info text-center mt-4">
+                There are more orders beyond the ones shown here.
             </div>
         }
-    </div>
-
-    @if (ViewBag.HasMoreOrders == true)
-    {
-        <div class="alert alert-info mt-3">
-            Hay más pedidos que los mostrados en pantalla.
-        </div>
     }
-}
 
-@if (ViewBag.LastDeliveredOrderId != null)
-{
-    <form asp-action="UndoLastDelivered" method="post" class="mt-4">
-        <button type="submit" class="btn btn-warning">Deshacer último pedido entregado</button>
-    </form>
-}
+    @if (ViewBag.LastDeliveredOrderId != null)
+    {
+        <form asp-action="UndoLastDelivered" method="post" class="mt-4 text-center">
+            <button type="submit" class="btn btn-warning">Undo Last Delivered Order</button>
+        </form>
+    }
+
+    <div class="d-flex justify-content-end mt-5">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">Back</a>
+    </div>
+</div>

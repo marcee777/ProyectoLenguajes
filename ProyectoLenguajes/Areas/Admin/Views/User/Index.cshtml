@@ -1,101 +1,115 @@
 ﻿@model List<ProyectoLenguajes.Areas.Admin.Models.ViewModels.UserVM>
 
 @{
-    ViewData["Title"] = "Users";
+    ViewData["Title"] = "User Management";
 }
 
-@if (TempData["success"] != null)
-{
-    <div class="alert alert-success">@TempData["success"]</div>
-}
-@if (TempData["error"] != null)
-{
-    <div class="alert alert-danger">@TempData["error"]</div>
-}
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
 
-<h2>@ViewData["Title"]</h2>
+    @if (TempData["success"] != null)
+    {
+        <div class="alert alert-success">@TempData["success"]</div>
+    }
+    @if (TempData["error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["error"]</div>
+    }
 
-<form method="get" asp-action="Index" class="form-inline mb-3">
-    <input type="text" name="search" class="form-control" placeholder="Search..." value="@Context.Request.Query["search"]" />
-    <button type="submit" class="btn btn-primary ml-2">Search</button>
-    <a asp-action="Index" class="btn btn-secondary ml-2">Clear</a>
-</form>
+    <form method="get" asp-action="Index" class="mb-3">
+        <div class="d-flex align-items-center gap-2">
+            <input type="text" name="search" class="form-control form-control-sm w-25" placeholder="Search by name or email..." value="@Context.Request.Query["search"]" />
+            <button type="submit" class="btn btn-primary btn-sm">Search</button>
+            <a asp-action="Index" class="btn btn-secondary btn-sm">Clear</a>
+        </div>
+    </form>
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Email</th>
-            <th>Address</th>
-            <th>Roles</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.FirstName</td>
-                <td>@user.LastName</td>
-                <td>@user.Email</td>
-                <td>@user.Address</td>
-                <td>
-                    @if (user.Roles != null && user.Roles.Any())
-                    {
-                        <ul>
-                            @foreach (var role in user.Roles)
+    <div class="table-responsive">
+        @* En dark o blanca ????????? *@
+        <table class="table table-dark table-striped custom-table align-middle">
+            <thead class="table-coral-header">
+                <tr>
+                    <th>First Name</th>
+                    <th>Last Name</th>
+                    <th>Email</th>
+                    <th>Address</th>
+                    <th>Roles</th>
+                    <th>Status</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    <tr>
+                        <td>@user.FirstName</td>
+                        <td>@user.LastName</td>
+                        <td>@user.Email</td>
+                        <td>@user.Address</td>
+                        <td>
+                            @if (user.Roles != null && user.Roles.Any())
                             {
-                                <li>@role</li>
+                                <ul class="mb-0 ps-3">
+                                    @foreach (var role in user.Roles)
+                                    {
+                                        <li>@role</li>
+                                    }
+                                </ul>
                             }
-                        </ul>
-                    }
-                </td>
-                <td>
-                    @if (user.Roles.Contains("Customer"))
-                    {
-                        @if (user.IsBlocked)
-                        {
-                            <span class="text-danger">Blocked</span>
-                        }
-                        else
-                        {
-                            <span class="text-success">Active</span>
-                        }
-                    }
-                    else
-                    {
-                        <span>-</span>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Update" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Edit</a>
+                        </td>
+                        <td>
+                            @if (user.Roles.Contains("Customer"))
+                            {
+                                @if (user.IsBlocked)
+                                {
+                                    <span class="text-danger">Blocked</span>
+                                }
+                                else
+                                {
+                                    <span class="text-success">Active</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                        <td class="text-center">
+                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                <a asp-action="Update" asp-route-id="@user.Id" class="btn btn-sm btn-warning">Edit</a>
 
-                    <form asp-action="Delete" asp-route-id="@user.Id" method="post" style="display:inline;">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
-                    </form>
+                                <form asp-action="Delete" asp-route-id="@user.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</button>
+                                </form>
 
-                    @if (user.Roles.Contains("Customer"))
-                    {
-                        @if (!user.IsBlocked)
-                        {
-                            <form asp-action="Block" asp-route-id="@user.Id" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to block this customer?');">Block</button>
-                            </form>
-                        }
-                        else
-                        {
-                            <form asp-action="Unblock" asp-route-id="@user.Id" method="post" style="display:inline;">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to unblock this customer?');">Unblock</button>
-                            </form>
-                        }
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                                @if (user.Roles.Contains("Customer"))
+                                {
+                                    if (!user.IsBlocked)
+                                    {
+                                        <form asp-action="Block" asp-route-id="@user.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-secondary" onclick="return confirm('Are you sure you want to block this customer?');">Block</button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <form asp-action="Unblock" asp-route-id="@user.Id" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('Are you sure you want to unblock this customer?');">Unblock</button>
+                                        </form>
+                                    }
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="d-flex justify-content-end mt-4 mb-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light">Back to Home</a>
+    </div>
+</div>
+

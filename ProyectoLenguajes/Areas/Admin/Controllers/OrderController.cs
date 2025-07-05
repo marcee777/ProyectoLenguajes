@@ -52,7 +52,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                     .Select(u => new SelectListItem
                     {
                         Value = u.Id,
-                        Text = u.UserName
+                        Text = u.UserName,
+
                     }).ToListAsync(),
                 Statuses = await _dbContext.Status
                     .Select(s => new SelectListItem
