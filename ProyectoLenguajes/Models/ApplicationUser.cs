@@ -14,6 +14,6 @@ namespace ProyectoLenguajes.Models
         public string LastName { get; set; }
 
         [StringLength(250)]
-        public string Address { get; set; } // Solo se llena si es cliente
+        public string? Address { get; set; } // Solo se llena si es cliente
     }
 }

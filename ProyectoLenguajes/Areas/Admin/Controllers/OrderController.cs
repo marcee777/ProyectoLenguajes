@@ -2,8 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
-using ProyectoLenguajes.Data.Repository.Interfaces;
-using ProyectoLenguajes.Models.ViewModels;
+using ProyectoLenguajes.Areas.Admin.Models.ViewModel;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {

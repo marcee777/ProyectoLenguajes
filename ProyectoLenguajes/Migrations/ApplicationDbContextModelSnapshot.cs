@@ -257,7 +257,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dishes");
+                    b.ToTable("Dishes", (string)null);
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.Order", b =>
@@ -287,7 +287,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Orders", (string)null);
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.OrderDetail", b =>
@@ -307,7 +307,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("OrderDetails");
+                    b.ToTable("OrderDetails", (string)null);
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.Status", b =>
@@ -330,7 +330,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Status");
+                    b.ToTable("Status", (string)null);
 
                     b.HasData(
                         new
