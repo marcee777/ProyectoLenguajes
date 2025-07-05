@@ -14,6 +14,5 @@
         public const string Status_Delayed = "Delayed";
         public const string Status_Canceled = "Canceled";
         public const string Status_Delivered = "Delivered";
-        public const string Status_Confirmed = "Confirmed";
     }
 }

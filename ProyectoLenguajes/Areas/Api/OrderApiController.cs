@@ -160,9 +160,9 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Confirmar pedido (cambiar estado de 'OnTime' a otro)
-        [Authorize]
-        [HttpPost("confirm")]
-        public async Task<IActionResult> ConfirmOrder()
+        /*Authorize]
+        [HttpPost("confirm*/
+        /*public async Task<IActionResult> ConfirmOrder()
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
@@ -187,8 +187,9 @@ namespace ProyectoLenguajes.Areas.Api
             await _context.SaveChangesAsync();
 
             return Ok(new { Success = true, Message = "Order confirmed" });
-        }
+        }*/
 
+        //metodo para pruebas, para ver el id
         [Authorize]
         [HttpGet("whoami")]
         public IActionResult WhoAmI()
