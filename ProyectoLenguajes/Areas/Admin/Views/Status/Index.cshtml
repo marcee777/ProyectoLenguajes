@@ -1,44 +1,65 @@
 ﻿@model List<ProyectoLenguajes.Models.Status>
 
 @{
-    ViewData["Title"] = "Configurar tiempos automáticos";
+    ViewData["Title"] = "Configure Auto Status Timers";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
 
-@if (ViewBag.SuccessMessage != null)
-{
-    <div class="alert alert-success">
-        @ViewBag.SuccessMessage
-    </div>
-}
+    @if (ViewBag.SuccessMessage != null)
+    {
+        <div class="alert alert-success">
+            @ViewBag.SuccessMessage
+        </div>
+    }
 
-<form method="post">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Estado</th>
-                <th>Tiempo para cambiar (min)</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < Model.Count; i++)
-            {
-                <tr>
-                    <td>
-                        @Model[i].Name
-                        <input type="hidden" name="statuses[@i].Id" value="@Model[i].Id" />
-                    </td>
-                    <td>
-                        <input type="number" class="form-control"
-                               name="statuses[@i].TimeToNextStatus"
-                               value="@Model[i].TimeToNextStatus"
-                               min="0" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <form method="post">
+        <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Status</th>
+                        <th>Time to next (min)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < Model.Count; i++)
+                    {
+                        <tr>
+                            <td style="max-width: 50px;">
+                                @Model[i].Name
+                                <input type="hidden" name="statuses[@i].Id" value="@Model[i].Id" />
+                            </td>
+                            <td style="max-width: 500px;" >
+                                <input type="number"
+                                       name="statuses[@i].TimeToNextStatus"
+                                       value="@Model[i].TimeToNextStatus"
+                                       min="0"
+                                       class="form-control form-control-sm orange-input" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
 
-    <button type="submit" class="btn btn-primary">Guardar</button>
-</form>
+        <div class="d-flex justify-content-end gap-2 mt-4">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">Back</a>
+            <button type="submit" class="btn btn-warning">Save</button>
+        </div>
+
+    </form>
+</div>
+
+<style>
+    .orange-input {
+        background-color: #fff4e6; 
+        border-color: #f7c27c;
+    }
+
+        .orange-input:focus {
+            border-color: #f29e38;
+            box-shadow: 0 0 0 0.2rem rgba(242, 158, 56, 0.25);
+        }
+</style>
