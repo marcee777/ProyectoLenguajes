@@ -2,8 +2,8 @@
 using ProyectoLenguajes.Models;
 using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using ProyectoLenguajes.Models.ApiModels;
+using Microsoft.Extensions.DependencyInjection; // Para acceder a RoleManager dinámicamente
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
@@ -12,9 +12,9 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
     [ApiController]
     public class UserApiController : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public UserApiController(UserManager<ApplicationUser> userManager)
+        public UserApiController(UserManager<IdentityUser> userManager)
         {
             _userManager = userManager;
         }
@@ -35,7 +35,9 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
                 Address = model.Address ?? string.Empty
             };
 
-            var result = await _userManager.CreateAsync(user, model.Password);
+            // Crear el usuario
+            IdentityUser identityUser = user;
+            var result = await _userManager.CreateAsync(identityUser, model.Password);
 
             if (!result.Succeeded)
             {
@@ -46,7 +48,19 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
                 });
             }
 
-            return Ok(new { Success = true, Message = "User registered successfully" });
+            // Obtener el RoleManager desde el contenedor de servicios
+            var roleManager = HttpContext.RequestServices.GetRequiredService<RoleManager<IdentityRole>>();
+
+            // Crear rol "Customer" si no existe
+            if (!await roleManager.RoleExistsAsync("Customer"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
+
+            // Asignar rol "Customer"
+            await _userManager.AddToRoleAsync(identityUser, "Customer");
+
+            return Ok(new { Success = true, Message = "User registered and assigned to Customer role successfully" });
         }
 
         // Obtener datos del usuario (requiere autenticación)
@@ -54,9 +68,13 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var identityUser = await _userManager.GetUserAsync(User);
+            if (identityUser == null)
                 return Unauthorized();
+
+            var user = identityUser as ApplicationUser;
+            if (user == null)
+                return BadRequest("User is not of type ApplicationUser.");
 
             var profile = new UserProfileDto
             {
@@ -77,9 +95,13 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
+            var identityUser = await _userManager.GetUserAsync(User);
+            if (identityUser == null)
                 return Unauthorized();
+
+            var user = identityUser as ApplicationUser;
+            if (user == null)
+                return BadRequest("User is not of type ApplicationUser.");
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
