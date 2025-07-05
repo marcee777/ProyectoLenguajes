@@ -4,96 +4,128 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Models.ApiModels;
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
-    [Route("Api/[controller]")]
+    [Route("api/[controller]")]
     [ApiController]
     public class AuthApiController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
         public AuthApiController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
+            RoleManager<IdentityRole> roleManager,
             IConfiguration configuration)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _configuration = configuration;
         }
 
-        // POST: Api/AuthApi/Register
+        // POST: api/AuthApi/Register
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
-            var user = new IdentityUser
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+                return Conflict(new { message = "Email is already registered." });
+
+            var user = new ApplicationUser
             {
                 UserName = model.Email,
-                Email = model.Email
+                Email = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                Address = model.Address
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
-
             if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            {
+                foreach (var error in result.Errors)
+                    ModelState.AddModelError(string.Empty, error.Description);
 
-            // Aquí podrías guardar FirstName, LastName y Address en otra tabla si quieres.
+                return BadRequest(ModelState);
+            }
 
-            return Ok(new { Success = true, Message = "User registered" });
+            var roleExists = await _roleManager.RoleExistsAsync("Customer");
+            if (!roleExists)
+            {
+                await _roleManager.CreateAsync(new IdentityRole("Customer"));
+            }
+            await _userManager.AddToRoleAsync(user, "Customer");
+
+            return Ok(new { message = "User registered successfully." });
         }
 
-        // POST: Api/AuthApi/Login
+        // POST: api/AuthApi/Login
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
-            var user = await _userManager.FindByEmailAsync(model.Email);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var userIdentity = await _userManager.FindByEmailAsync(model.Email);
+            var user = userIdentity as ApplicationUser;
             if (user == null)
-                return Unauthorized(new { Success = false, Message = "Invalid credentials" });
+                return Unauthorized(new { message = "Invalid email or password." });
 
-            var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-            if (!result.Succeeded)
-                return Unauthorized(new { Success = false, Message = "Invalid credentials" });
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            if (!signInResult.Succeeded)
+                return Unauthorized(new { message = "Invalid email or password." });
 
-            var token = GenerateJwtToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
 
-            return Ok(new { Token = token });
+            var token = GenerateJwtToken(user, roles);
+
+            return Ok(new { token });
         }
 
-        private string GenerateJwtToken(IdentityUser user)
+
+
+        private string GenerateJwtToken(ApplicationUser user, IList<string> roles)
         {
-            var jwtSettings = _configuration.GetSection("JwtSettings");
-
-            var claims = new[]
+            var claims = new List<Claim>
             {
-        // Usamos el ID del usuario como el "subject" principal del token (sub)
-        new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.NameId, user.Id), // usar "nameid" estándar
+                new Claim(ClaimTypes.NameIdentifier, user.Id),       // adicional para compatibilidad
+                new Claim(ClaimTypes.Email, user.Email),             // útil si luego quieres el email
+                new Claim(ClaimTypes.Name, user.Email)               // para User.Identity.Name
+            };
 
-        // También agregamos el Id en ClaimTypes.NameIdentifier (opcional pero común)
-        new Claim(ClaimTypes.NameIdentifier, user.Id),
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
-        // Correo en otro claim para tenerlo disponible si se necesita
-        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+            var secretKey = _configuration["JwtSettings:SecretKey"];
+            var issuer = _configuration["JwtSettings:Issuer"];
+            var audience = _configuration["JwtSettings:Audience"];
 
-        // Nombre de usuario
-        new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-
-        // Jti para identificación única del token
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-    };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
-                issuer: jwtSettings["Issuer"],
-                audience: jwtSettings["Audience"],
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: creds
@@ -101,6 +133,8 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
 
 
     }

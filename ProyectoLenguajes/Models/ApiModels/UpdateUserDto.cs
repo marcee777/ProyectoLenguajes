@@ -4,6 +4,7 @@ namespace ProyectoLenguajes.Models.ApiModels
 {
     public class UpdateUserDto
     {
+       
         [Required]
         [StringLength(100)]
         public string FirstName { get; set; } = null!;

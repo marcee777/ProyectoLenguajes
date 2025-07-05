@@ -64,7 +64,7 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = jwtSettings["Issuer"],
         ValidAudience = jwtSettings["Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-        NameClaimType = System.Security.Claims.ClaimTypes.NameIdentifier // <--- Esta línea es clave
+        NameClaimType = System.Security.Claims.ClaimTypes.Name // <--- Esta línea es clave
     };
 });
 

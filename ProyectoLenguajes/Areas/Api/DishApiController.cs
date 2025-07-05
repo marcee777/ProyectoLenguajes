@@ -5,12 +5,14 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using ProyectoLenguajes.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DishApiController : ControllerBase
     {
 

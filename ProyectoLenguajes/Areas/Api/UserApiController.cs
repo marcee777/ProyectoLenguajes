@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using System.Threading.Tasks;
 using ProyectoLenguajes.Models.ApiModels;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authorization; // Para acceder a RoleManager dinámicamente
+using Microsoft.AspNetCore.Authorization;
+using System;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
@@ -14,57 +15,17 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
     public class UserApiController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
 
-        public UserApiController(UserManager<IdentityUser> userManager)
+        public UserApiController(
+            UserManager<IdentityUser> userManager,
+            IServiceProvider serviceProvider)
         {
             _userManager = userManager;
+            _roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         }
 
-        // Registro de usuario
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] RegisterUserDto model)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var user = new ApplicationUser
-            {
-                UserName = model.Email,
-                Email = model.Email,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Address = model.Address ?? string.Empty
-            };
-
-            // Crear el usuario
-            IdentityUser identityUser = user;
-            var result = await _userManager.CreateAsync(identityUser, model.Password);
-
-            if (!result.Succeeded)
-            {
-                return BadRequest(new
-                {
-                    Success = false,
-                    Errors = result.Errors
-                });
-            }
-
-            // Obtener el RoleManager desde el contenedor de servicios
-            var roleManager = HttpContext.RequestServices.GetRequiredService<RoleManager<IdentityRole>>();
-
-            // Crear rol "Customer" si no existe
-            if (!await roleManager.RoleExistsAsync("Customer"))
-            {
-                await roleManager.CreateAsync(new IdentityRole("Customer"));
-            }
-
-            // Asignar rol "Customer"
-            await _userManager.AddToRoleAsync(identityUser, "Customer");
-
-            return Ok(new { Success = true, Message = "User registered and assigned to Customer role successfully" });
-        }
-
-        // Obtener datos del usuario (requiere autenticación)
+        // GET: Api/UserApi/profile
         [Authorize]
         [HttpGet("profile")]
         public async Task<IActionResult> GetProfile()
@@ -75,7 +36,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
 
             var user = identityUser as ApplicationUser;
             if (user == null)
-                return BadRequest("User is not of type ApplicationUser.");
+                return BadRequest("El usuario no es del tipo ApplicationUser.");
 
             var profile = new UserProfileDto
             {
@@ -88,7 +49,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             return Ok(profile);
         }
 
-        // Actualizar datos del usuario (nombre, dirección y opcionalmente contraseña)
+        // PUT: Api/UserApi/profile
         [Authorize]
         [HttpPut("profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
@@ -102,7 +63,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
 
             var user = identityUser as ApplicationUser;
             if (user == null)
-                return BadRequest("User is not of type ApplicationUser.");
+                return BadRequest("El usuario no es del tipo ApplicationUser.");
 
             user.FirstName = model.FirstName;
             user.LastName = model.LastName;
@@ -119,7 +80,6 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
                 });
             }
 
-            // Cambiar contraseña si se envió una nueva
             if (!string.IsNullOrEmpty(model.NewPassword))
             {
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);

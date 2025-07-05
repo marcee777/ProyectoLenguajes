@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace ProyectoLenguajes.Areas.Api
 {
@@ -30,7 +31,7 @@ namespace ProyectoLenguajes.Areas.Api
         [HttpGet("my-active")]
         public async Task<IActionResult> GetMyActiveOrder()
         {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
@@ -75,7 +76,7 @@ namespace ProyectoLenguajes.Areas.Api
             if (Amount <= 0)
                 return BadRequest(new { Success = false, Message = "Amount must be greater than zero" });
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             if (string.IsNullOrEmpty(userId))
                 return Unauthorized(new { message = "User ID is null or empty." });
@@ -86,9 +87,10 @@ namespace ProyectoLenguajes.Areas.Api
                 return BadRequest(new { message = "User does not exist in database.", userId });
 
             // Validar que el plato exista y esté activo (si tienes esa propiedad)
-            var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == DishId /* && d.IsActive */);
-            if (dish == null /* || !dish.IsActive */)
+            var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == DishId && d.IsActive);
+            if (dish == null)
                 return BadRequest(new { Success = false, Message = "Dish not found or inactive" });
+
 
             var status = await _context.Status.FirstOrDefaultAsync(s => s.Name == StaticValues.Status_OnTime);
             if (status == null)
@@ -186,5 +188,26 @@ namespace ProyectoLenguajes.Areas.Api
 
             return Ok(new { Success = true, Message = "Order confirmed" });
         }
+
+        [Authorize]
+        [HttpGet("whoami")]
+        public IActionResult WhoAmI()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+            var name = User.Identity?.Name;
+
+            return Ok(new
+            {
+                userId,
+                email,
+                name
+            });
+        }
+
+
+
+
+
     }
 }
