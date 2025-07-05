@@ -64,6 +64,9 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Upsert(Dish dish, IFormFile? file)
         {
+
+            ModelState.Remove("URLImage");
+
             if (ModelState.IsValid)
             {
                 
