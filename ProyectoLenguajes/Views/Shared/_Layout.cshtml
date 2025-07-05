@@ -67,7 +67,10 @@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>  
+                        </li>
+
+                        @* AQUI SE VERIFICARÍA SI EL USAER ES ROL ADMIN Y ABAJO ESTÁ EL BOTÓN DE USER COCINA *@
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin"  asp-controller="Dish" asp-action="Index">Dishes</a>
                         </li>
@@ -80,9 +83,8 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="Status" asp-action="Index">Status</a>
                         </li>
-                        @* agregar el resto cuando estén, manejar que se vean o no según el usuario (admin/cocina) *@
 
-                        @* De mientras para ir a Kitchen *@
+                        @* De mientras para ir a Kitchen - Rol de kitchen *@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Kitchen" asp-controller="Order" asp-action="Index">Temp:Kitchen(Orders)</a>
                         </li>
