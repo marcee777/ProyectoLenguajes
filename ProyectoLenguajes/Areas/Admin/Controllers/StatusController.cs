@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Utilities;
@@ -7,6 +8,7 @@ using System.Linq;
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class StatusController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

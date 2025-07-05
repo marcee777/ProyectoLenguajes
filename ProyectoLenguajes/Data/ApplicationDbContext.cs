@@ -35,6 +35,7 @@ namespace ProyectoLenguajes.Data
                 new Status { Id = 4, Name = StaticValues.Status_Canceled, TimeToNextStatus = null, NextStatusId = null },
                 new Status { Id = 5, Name = StaticValues.Status_Delivered, TimeToNextStatus = null, NextStatusId = null }
             );
+
         }
     }
 }

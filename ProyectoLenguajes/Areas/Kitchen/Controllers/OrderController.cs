@@ -3,14 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models.ViewModels;
 using ProyectoLenguajes.Utilities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace ProyectoLenguajes.Areas.Kitchen.Controllers
 {
     [Area("Kitchen")]
-    //[Authorize(Roles = StaticValues.Role_Kitchen)]
+    [Authorize(Roles = StaticValues.Role_Kitchen)]
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;

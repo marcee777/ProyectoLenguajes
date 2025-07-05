@@ -12,8 +12,8 @@ using ProyectoLenguajes.Data;
 namespace ProyectoLenguajes.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250703224038_cambioRegister")]
-    partial class cambioRegister
+    [Migration("20250705211014_cargaTotalNuevaBD")]
+    partial class cargaTotalNuevaBD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -372,7 +372,6 @@ namespace ProyectoLenguajes.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 

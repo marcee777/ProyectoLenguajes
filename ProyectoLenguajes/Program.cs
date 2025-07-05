@@ -1,3 +1,10 @@
+
+// inicio usings para lo de JWT
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+// fin usings para lo de JWT
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +15,19 @@ using ProyectoLenguajes.Utilities;
 using ProyectoLenguajes.Services;
 using ProyectoLenguajes.Models;
 
+
+
+
 var builder = WebApplication.CreateBuilder(args);
+
+
+// inicio de lectura de configuracion JWT desde appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"];
+// fin de lectura de configuracion JWT desde appsettings.json
+
+
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -23,6 +42,34 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.LogoutPath = $"/Identity/Account/Logout";
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
+
+
+// inicio de configuración de JWT Authentication
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = true;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        NameClaimType = System.Security.Claims.ClaimTypes.Name // <--- Esta línea es clave
+    };
+});
+
+// fin de configuracion de JWT Authentication
+
 
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

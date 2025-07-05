@@ -257,7 +257,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Dishes", (string)null);
+                    b.ToTable("Dishes");
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.Order", b =>
@@ -287,7 +287,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasIndex("StatusId");
 
-                    b.ToTable("Orders", (string)null);
+                    b.ToTable("Orders");
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.OrderDetail", b =>
@@ -307,7 +307,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasIndex("DishId");
 
-                    b.ToTable("OrderDetails", (string)null);
+                    b.ToTable("OrderDetails");
                 });
 
             modelBuilder.Entity("ProyectoLenguajes.Models.Status", b =>
@@ -330,7 +330,7 @@ namespace ProyectoLenguajes.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Status", (string)null);
+                    b.ToTable("Status");
 
                     b.HasData(
                         new
@@ -369,7 +369,6 @@ namespace ProyectoLenguajes.Migrations
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
