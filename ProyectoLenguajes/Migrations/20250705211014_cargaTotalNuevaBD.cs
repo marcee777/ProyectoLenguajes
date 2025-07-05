@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace ProyectoLenguajes.Migrations
 {
     /// <inheritdoc />
-    public partial class CargaTotal : Migration
+    public partial class cargaTotalNuevaBD : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

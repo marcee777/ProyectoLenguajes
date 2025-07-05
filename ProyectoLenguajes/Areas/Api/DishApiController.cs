@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Models.ApiModels;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Threading.Tasks;
 using ProyectoLenguajes.Data;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
