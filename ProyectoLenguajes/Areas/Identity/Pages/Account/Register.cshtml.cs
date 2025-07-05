@@ -15,9 +15,11 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.WebUtilities;
 using ProyectoLenguajes.Models;
+using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Areas.Identity.Pages.Account
 {
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class RegisterModel : PageModel
     {
         private readonly SignInManager<IdentityUser> _signInManager;
@@ -109,7 +111,6 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
 
         }
 
-
         public async Task OnGetAsync(string returnUrl = null)
         {
             if (!_roleManager.RoleExistsAsync(Utilities.StaticValues.Role_Admin).GetAwaiter().GetResult())
@@ -185,8 +186,9 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                     }
                     else
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        //await _signInManager.SignInAsync(user, isPersistent: false);
+                        //return LocalRedirect(returnUrl);
+                        return RedirectToAction("Index", "User", new { area = "Admin" });
                     }
                 }
                 foreach (var error in result.Errors)
