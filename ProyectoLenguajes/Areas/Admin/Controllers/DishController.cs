@@ -17,8 +17,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
     */
 
     [Area("Admin")]
-    //[Authorize(Roles = StaticValues.Role_Admin)]
-
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class DishController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -64,7 +63,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Upsert(Dish dish, IFormFile? file)
         {
-
+            //Evita que el modelo sea inválido cada que se inserta o edita
             ModelState.Remove("URLImage");
 
             if (ModelState.IsValid)

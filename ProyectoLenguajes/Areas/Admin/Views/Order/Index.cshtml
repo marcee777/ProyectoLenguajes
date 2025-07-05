@@ -3,92 +3,98 @@
 @using ProyectoLenguajes.Areas.Admin.Models.ViewModel
 
 @{
-    ViewData["Title"] = "Administrar Pedidos";
+    ViewData["Title"] = "Manage Orders";
 }
 
-<h2>Administrar Pedidos</h2>
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">Manage Orders</h2>
 
-<form method="get" asp-action="Index" class="mb-4">
-    <div class="row">
-        <div class="col-md-3">
-            <label>Cliente</label>
-            <select name="clientId" class="form-control">
-                <option value="">-- Todos --</option>
-                @foreach (var client in Model.Clients)
-                {
-                    <option value="@client.Value" selected="@(client.Value == Model.ClientId ? "selected" : null)">
-                        @client.Text
-                    </option>
-                }
-            </select>
+    <form method="get" asp-action="Index" class="mb-4">
+        <div class="row align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Client</label>
+                <select name="clientId" class="form-control">
+                    <option value="">-- All --</option>
+                    @foreach (var client in Model.Clients)
+                    {
+                        <option value="@client.Value" selected="@(client.Value == Model.ClientId ? "selected" : null)">
+                            @client.Text
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="statusId" class="form-control">
+                    <option value="">-- All --</option>
+                    @foreach (var status in Model.Statuses)
+                    {
+                        <option value="@status.Value" selected="@(status.Value == Model.StatusId?.ToString() ? "selected" : null)">
+                            @status.Text
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">From</label>
+                <input type="date" name="startDate" class="form-control" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">To</label>
+                <input type="date" name="endDate" class="form-control" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+            </div>
+            <div class="col-md-2 text-end">
+                <button type="submit" class="btn btn-warning">Apply Filters</button>
+            </div>
         </div>
-        <div class="col-md-3">
-            <label>Estado</label>
-            <select name="statusId" class="form-control">
-                <option value="">-- Todos --</option>
-                @foreach (var status in Model.Statuses)
-                {
-                    <option value="@status.Value" selected="@(status.Value == Model.StatusId?.ToString() ? "selected" : null)">
-                        @status.Text
-                    </option>
-                }
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label>Desde</label>
-            <input type="date" name="startDate" class="form-control" value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
-        </div>
-        <div class="col-md-3">
-            <label>Hasta</label>
-            <input type="date" name="endDate" class="form-control" value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
-        </div>
-    </div>
-    <div class="mt-3">
-        <button type="submit" class="btn btn-primary">Aplicar filtros</button>
-    </div>
-</form>
+    </form>
 
-<table class="table table-bordered table-striped">
-    <thead>
-        <tr>
-            <th>Cliente</th>
-            <th>Fecha</th>
-            <th>Estado</th>
-            <th>Platos</th>
-            <th>Cambiar Estado</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var order in Model.Orders)
-        {
+    <table class="table table-bordered">
+        <thead class="table-light">
             <tr>
-                <td>@order.Client.UserName</td>
-                <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                <td>@order.Status.Name</td>
-                <td>
-                    <ul class="mb-0">
-                        @foreach (var detail in order.OrderDetails)
-                        {
-                            <li>@detail.Dish.Name x @detail.Amount</li>
-                            
-                        }
-                    </ul>
-                </td>
-                <td>
-                    <form asp-action="UpdateStatus" method="post">
-                        <input type="hidden" name="orderId" value="@order.Id" />
-                        <select name="newStatusId" class="form-control">
-                            @foreach (var status in Model.Statuses)
-                            {
-                                <option value="@status.Value" selected="@(status.Value == order.StatusId.ToString() ? "selected" : null)">
-                                    @status.Text
-                                </option>
-                            }
-                        </select>
-                        <button type="submit" class="btn btn-warning btn-sm mt-2">Actualizar</button>
-                    </form>
-                </td>
+                <th>Client</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Dishes</th>
+                <th>Change Status</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Orders)
+            {
+                <tr>
+                    <td>@order.Client.FirstName</td>
+                    <td>@order.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@order.Status.Name</td>
+                    <td>
+                        <ul class="mb-0">
+                            @foreach (var detail in order.OrderDetails)
+                            {
+                                <li>@detail.Dish.Name x @detail.Amount</li>
+                            }
+                        </ul>
+                    </td>
+                    <td>
+                        <form asp-action="UpdateStatus" method="post" class="d-flex">
+                            <input type="hidden" name="orderId" value="@order.Id" />
+                            <select name="newStatusId" class="form-select form-select-sm me-2">
+                                @foreach (var status in Model.Statuses)
+                                {
+                                    <option value="@status.Value" selected="@(status.Value == order.StatusId.ToString() ? "selected" : null)">
+                                        @status.Text
+                                    </option>
+                                }
+                            </select>
+                            <button type="submit" class="btn btn-warning btn-sm" title="Update">
+                                <i class="bi bi-check-circle"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="d-flex justify-content-end mt-4">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">Back</a>
+    </div>
+</div>

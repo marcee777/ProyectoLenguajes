@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Areas.Admin.Models.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    // [Authorize(Roles = StaticValues.Role_Admin)] // puedes habilitarlo si quieres
-
+    [Authorize(Roles = Utilities.StaticValues.Role_Admin)]
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
@@ -52,7 +52,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                     .Select(u => new SelectListItem
                     {
                         Value = u.Id,
-                        Text = u.UserName
+                        Text = u.UserName,
+
                     }).ToListAsync(),
                 Statuses = await _dbContext.Status
                     .Select(s => new SelectListItem

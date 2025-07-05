@@ -3,10 +3,13 @@ using Microsoft.AspNetCore.Identity;
 using ProyectoLenguajes.Models;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Areas.Admin.Models.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class UserController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;

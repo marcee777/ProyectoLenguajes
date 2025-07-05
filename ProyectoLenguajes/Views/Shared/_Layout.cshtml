@@ -3,8 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - ProyectoLenguajes </title>
-    <!--CAMBIAR TÍTULO-->
+    <title>@ViewData["Title"] - Hanami </title>
 
     <!-- Bootstrap y estilos -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
@@ -18,35 +17,35 @@
     <!-- Estilo para layout de fondo completo y footer fijo -->
     <style>
         html, body {
-            height: 100%;
-            margin: 0;
+        height: 100%;
+        margin: 0;
         }
 
         .custom-orange-navbar {
-            background-color: #343a40 !important;
+        background-color: #343a40 !important;
         }
 
-            .custom-orange-navbar .navbar-brand,
-            .custom-orange-navbar .nav-link,
-            .custom-orange-navbar .navbar-toggler-icon {
-                color: white !important;
-            }
+        .custom-orange-navbar .navbar-brand,
+        .custom-orange-navbar .nav-link,
+        .custom-orange-navbar .navbar-toggler-icon {
+        color: white !important;
+        }
 
-                .custom-orange-navbar .nav-link:hover {
-                    color: #ffd7a0 !important;
-                }
+        .custom-orange-navbar .nav-link:hover {
+        color: #ffd7a0 !important;
+        }
 
         body {
-            display: flex;
-            flex-direction: column;
+        display: flex;
+        flex-direction: column;
         }
 
         main {
-            flex: 1 0 auto;
+        flex: 1 0 auto;
         }
 
         footer {
-            flex-shrink: 0;
+        flex-shrink: 0;
         }
     </style>
 </head>
@@ -54,16 +53,46 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light custom-orange-navbar border-bottom shadow-sm mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">Hanami</a>
+
+                <a class="navbar-brand d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/Logo/LogoHanami.png" alt="Logo" style="height: 30px; width: auto;" class="me-2" />
+                    Hanami
+                </a>
+
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>                      
+                        </li>
+
+                        @if (User.IsInRole(ProyectoLenguajes.Utilities.StaticValues.Role_Admin))
+                        {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" id="managementDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Management
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="managementDropdown">
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dish" asp-action="Index">Dishes</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Order" asp-action="Index">Orders</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index">Users</a></li>
+                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Status" asp-action="Index">Status</a></li>
+                                </ul>
+                            </li>
+                        }
+
+                        @* agregar el resto cuando estén, manejar que se vean o no según el usuario (admin/cocina) *@
+
+                        @* De mientras para ir a Kitchen *@
+                        @if (User.IsInRole(ProyectoLenguajes.Utilities.StaticValues.Role_Kitchen))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-area="Kitchen" asp-controller="Order" asp-action="Index">Active Orders</a>
+                            </li>
+                        }
                     </ul>
 
                     <partial name="_LoginPartial"></partial>
