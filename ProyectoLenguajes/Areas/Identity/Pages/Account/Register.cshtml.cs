@@ -195,6 +195,18 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                 }
             }
 
+            Input = new()
+            {
+                RoleList = _roleManager.Roles
+                        .Where(r => r.Name != Utilities.StaticValues.Role_Customer) // Excluir el rol de customer
+                        .Select(x => x.Name)
+                        .Select(i => new SelectListItem
+                        {
+                            Text = i,
+                            Value = i
+                        })
+            };
+
             // If we got this far, something failed, redisplay form
             return Page();
         }

@@ -17,8 +17,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
     */
 
     [Area("Admin")]
-    //[Authorize(Roles = StaticValues.Role_Admin)]
-
+    [Authorize(Roles = StaticValues.Role_Admin)]
     public class DishController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
