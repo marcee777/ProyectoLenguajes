@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using ProyectoLenguajes.Data.Repository;
 using ProyectoLenguajes.Data.Repository.Interfaces;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Utilities;
@@ -81,7 +79,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                     if (dish.URLImage != null)
                     {
                         var oldImageURL = Path.Combine(wwwRootPath, dish.URLImage);
-
 
                         if (oldImageURL != Path.Combine(uploadsFolder, Utilities.StaticValues.Image_DefaultName))
                         {
