@@ -6,12 +6,14 @@ using ProyectoLenguajes.Models.ApiModels;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
 using System;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class UserApiController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -26,8 +28,8 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // GET: Api/UserApi/profile
-        [Authorize]
-        [HttpGet("profile")]
+        
+        [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
             var identityUser = await _userManager.GetUserAsync(User);
@@ -49,9 +51,9 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             return Ok(profile);
         }
 
-        // PUT: Api/UserApi/profile
-        [Authorize]
-        [HttpPut("profile")]
+        // PUT: Api/UserApi/Profile
+        
+        [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
         {
             if (!ModelState.IsValid)

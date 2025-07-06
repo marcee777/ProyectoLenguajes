@@ -10,12 +10,14 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ProyectoLenguajes.Areas.Api
 {
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class OrderApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -27,8 +29,10 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Obtener carrito actual (orden con estado "OnTime")
-        [Authorize]
-        [HttpGet("my-active")]
+
+        // hace falta probar esto
+
+        [HttpGet("My-Active")]
         public async Task<IActionResult> GetMyActiveOrder()
         {
             var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -40,6 +44,7 @@ namespace ProyectoLenguajes.Areas.Api
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Dish)
                 .Include(o => o.Status)
+                .Include(o => o.Client) // 👈 Incluir los datos del cliente
                 .FirstOrDefaultAsync(o => o.ClientId == userId && o.Status.Name == StaticValues.Status_OnTime);
 
             if (o == null) return Ok(null);
@@ -47,7 +52,7 @@ namespace ProyectoLenguajes.Areas.Api
             var dto = new OrderDto
             {
                 Id = o.Id,
-                ClientName = "Me",
+                ClientName = $"{o.Client.FirstName} {o.Client.LastName}", // 👈 Usar el nombre real
                 CreatedAt = o.CreatedAt,
                 LastStatusChange = o.LastStatusChange,
                 Status = new StatusDto
@@ -66,10 +71,12 @@ namespace ProyectoLenguajes.Areas.Api
 
             return Ok(dto);
         }
+        // hace falta probar esto
+
 
         // CLIENTE: Agregar plato al carrito
-        [Authorize]
-        [HttpPost("add-item")]
+
+        [HttpPost("Add-Item")]
 
         public async Task<IActionResult> AddItem([FromForm] int DishId, [FromForm] int Amount)
         {
@@ -129,8 +136,8 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // CLIENTE: Eliminar ítem del carrito
-        [Authorize]
-        [HttpDelete("remove-item/{dishId}")]
+        
+        [HttpDelete("Remove-Item/{dishId}")]
         public async Task<IActionResult> RemoveItem(int dishId)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
@@ -159,38 +166,9 @@ namespace ProyectoLenguajes.Areas.Api
             return Ok(new { Success = true, Message = "Item removed" });
         }
 
-        // CLIENTE: Confirmar pedido (cambiar estado de 'OnTime' a otro)
-        /*Authorize]
-        [HttpPost("confirm*/
-        /*public async Task<IActionResult> ConfirmOrder()
-        {
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(userId))
-                return Unauthorized();
-
-            var order = await _context.Orders
-                .Include(o => o.Status)
-                .Include(o => o.OrderDetails)
-                .FirstOrDefaultAsync(o => o.ClientId == userId && o.Status.Name == StaticValues.Status_OnTime);
-
-            if (order == null)
-                return NotFound(new { Success = false, Message = "No active order to confirm" });
-
-            var confirmedStatus = await _context.Status.FirstOrDefaultAsync(s => s.Name == StaticValues.Status_Confirmed);
-            if (confirmedStatus == null)
-                return BadRequest(new { Success = false, Message = "Confirmed status not found" });
-
-            order.StatusId = confirmedStatus.Id;
-            order.LastStatusChange = DateTime.Now;
-
-            await _context.SaveChangesAsync();
-
-            return Ok(new { Success = true, Message = "Order confirmed" });
-        }*/
-
+        
         //metodo para pruebas, para ver el id
-        [Authorize]
+        
         [HttpGet("whoami")]
         public IActionResult WhoAmI()
         {
@@ -205,10 +183,5 @@ namespace ProyectoLenguajes.Areas.Api
                 name
             });
         }
-
-
-
-
-
     }
 }

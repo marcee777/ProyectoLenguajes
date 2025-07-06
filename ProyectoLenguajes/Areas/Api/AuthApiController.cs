@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
-    [Route("api/[controller]")]
+    [Route("Api/[controller]")]
     [ApiController]
     public class AuthApiController : ControllerBase
     {
@@ -35,7 +35,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             _configuration = configuration;
         }
 
-        // POST: api/AuthApi/Register
+        // POST: Api/AuthApi/Register
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
@@ -74,7 +74,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             return Ok(new { message = "User registered successfully." });
         }
 
-        // POST: api/AuthApi/Login
+        // POST: Api/AuthApi/Login
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {

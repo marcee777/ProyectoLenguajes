@@ -3,13 +3,14 @@ using ProyectoLenguajes.Models.ApiModels;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DishApiController : ControllerBase
     {
 
