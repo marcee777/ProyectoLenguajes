@@ -1,11 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProyectoLenguajes.Models;
 using Microsoft.AspNetCore.Identity;
-using System.Threading.Tasks;
 using ProyectoLenguajes.Models.ApiModels;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Authorization;
-using System;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
@@ -28,7 +25,7 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // GET: Api/UserApi/profile
-        
+
         [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -52,7 +49,6 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // PUT: Api/UserApi/Profile
-        
         [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
         {
@@ -82,8 +78,29 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
                 });
             }
 
-            if (!string.IsNullOrEmpty(model.NewPassword))
+            if (!string.IsNullOrWhiteSpace(model.NewPassword))
             {
+                if (model.NewPassword.Length < 6)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Errors = new[] { new { Code = "PasswordTooShort", Description = "Password must be at least 6 characters long." } }
+                    });
+                }
+
+                var validationResult = await _userManager.PasswordValidators[0]
+                    .ValidateAsync(_userManager, user, model.NewPassword);
+
+                if (!validationResult.Succeeded)
+                {
+                    return BadRequest(new
+                    {
+                        Success = false,
+                        Errors = validationResult.Errors
+                    });
+                }
+
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.NewPassword);
 
@@ -97,7 +114,13 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
                 }
             }
 
-            return Ok(new { Success = true, Message = "Profile updated successfully" });
+            return Ok(new
+            {
+                Success = true,
+                Message = string.IsNullOrWhiteSpace(model.NewPassword)
+                    ? "Profile updated successfully (no password change)."
+                    : "Profile and password updated successfully."
+            });
         }
     }
 }

@@ -171,10 +171,13 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.UtcNow.AddYears(1));
-            TempData["success"] = "Customer blocked.";
+            var lockoutEnd = DateTimeOffset.UtcNow.AddMinutes(30);
+            await _userManager.SetLockoutEndDateAsync(user, lockoutEnd);
+
+            TempData["success"] = $"Customer blocked until {lockoutEnd:u} UTC.";
             return RedirectToAction(nameof(Index));
         }
+
 
         // POST: Admin/User/Unblock/5
         [HttpPost]

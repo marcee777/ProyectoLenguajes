@@ -1,15 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Models.ApiModels;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
@@ -86,7 +82,13 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             if (user == null)
                 return Unauthorized(new { message = "Invalid email or password." });
 
-            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            // Chequeo si está bloqueado
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                return BadRequest(new { message = "Your account is locked. Please contact support." });
+            }
+
+            var signInResult = await _signInManager.CheckPasswordSignInAsync(user, model.Password, true);
             if (!signInResult.Succeeded)
                 return Unauthorized(new { message = "Invalid email or password." });
 
