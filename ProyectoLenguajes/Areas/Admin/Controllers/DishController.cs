@@ -61,12 +61,11 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         [HttpPost]
         public IActionResult Upsert(Dish dish, IFormFile? file)
         {
-            //Evita que el modelo sea inválido cada que se inserta o edita
+            // Evita que el modelo sea inválido cada que se inserta o edita
             ModelState.Remove("URLImage");
 
             if (ModelState.IsValid)
             {
-                
 
                 if (file != null)
                 {
@@ -118,17 +117,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 TempData["success"] = "Dish saved successfully";
 
             }
-            //luego cambiar 
+            // Luego cambiar ??
             return RedirectToAction("Index"); 
-        }
-
-        #region API
-
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var dishList = _unitOfWork.Dish.GetAll();
-            return Json(new { data = dishList });
         }
 
         [HttpDelete]
@@ -158,8 +148,5 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             return Json(new { success = true, message = "Dish deleted successfully" });
         }
-
-        #endregion
-
     }
 }

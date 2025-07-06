@@ -1,3 +1,10 @@
+﻿
+// Inicio usings para lo de JWT
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+// Fin usings para lo de JWT
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -7,8 +14,14 @@ using ProyectoLenguajes.Data.Repository;
 using ProyectoLenguajes.Utilities;
 using ProyectoLenguajes.Services;
 using ProyectoLenguajes.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Inicio de lectura de configuracion JWT desde appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var secretKey = jwtSettings["SecretKey"];
+// Fin de lectura de configuracion JWT desde appsettings.json
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -24,6 +37,32 @@ builder.Services.ConfigureApplicationCookie(options => {
     options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+// Inicio de configuración de JWT Authentication
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme; // Cambiado
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme) // Agregado para web
+.AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => // JWT sigue funcionando
+{
+    options.RequireHttpsMetadata = true;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+        NameClaimType = System.Security.Claims.ClaimTypes.Name
+    };
+});
+
+// Fin de configuracion de JWT Authentication
+
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IEmailSender, EmailSender>();
@@ -38,7 +77,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
-}); 
+});
 
 ////////////////////////////////////
 

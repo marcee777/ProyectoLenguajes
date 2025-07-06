@@ -2,12 +2,14 @@
 using ProyectoLenguajes.Models.ApiModels;
 using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProyectoLenguajes.Areas.Api.Controllers
 {
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
+    [Authorize]
     public class DishApiController : ControllerBase
     {
 
