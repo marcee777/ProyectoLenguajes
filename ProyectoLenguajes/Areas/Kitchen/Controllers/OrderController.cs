@@ -16,6 +16,7 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
         // Claves de sesión para guardar último pedido entregado y estado previo
         private const string SessionLastDeliveredOrderId = "_LastDeliveredOrderId";
         private const string SessionLastDeliveredOrderPrevStatusId = "_LastDeliveredOrderPrevStatusId";
+        private const string SessionLastDeliveredOrderPrevStatusChange = "_LastDeliveredOrderPrevStatusChange";
 
         public OrderController(IUnitOfWork unitOfWork)
         {
@@ -32,7 +33,6 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
                 .OrderBy(o => o.CreatedAt)
                 .ToList();
 
-            // Tomar máximo MaxOrdersToShow
             var ordersToShow = allActiveOrders.Take(MaxOrdersToShow).ToList();
 
             var orderVMs = ordersToShow.Select(o => new OrderVM
@@ -41,10 +41,8 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
                 OrderDetails = o.OrderDetails.ToList()
             }).ToList();
 
-            // Indicar si hay más pedidos pendientes que los mostrados
             ViewBag.HasMoreOrders = allActiveOrders.Count > MaxOrdersToShow;
 
-            // Indicar el id de la última orden entregada en sesión para "deshacer"
             ViewBag.LastDeliveredOrderId = HttpContext.Session.GetInt32(SessionLastDeliveredOrderId);
 
             return View(orderVMs);
@@ -63,9 +61,10 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             if (deliveredStatus == null)
                 return BadRequest("Delivered status not found.");
 
-            // Guardar en sesión el Id del pedido y el estado previo antes de cambiarlo
+            // Guardar en sesión el Id del pedido, estado previo y LastStatusChange previo
             HttpContext.Session.SetInt32(SessionLastDeliveredOrderId, order.Id);
             HttpContext.Session.SetInt32(SessionLastDeliveredOrderPrevStatusId, order.StatusId);
+            HttpContext.Session.SetString(SessionLastDeliveredOrderPrevStatusChange, order.LastStatusChange.ToString("o")); // ISO 8601
 
             order.StatusId = deliveredStatus.Id;
             order.LastStatusChange = DateTime.Now;
@@ -83,24 +82,28 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
         {
             var lastDeliveredOrderId = HttpContext.Session.GetInt32(SessionLastDeliveredOrderId);
             var lastDeliveredOrderPrevStatusId = HttpContext.Session.GetInt32(SessionLastDeliveredOrderPrevStatusId);
+            var lastDeliveredOrderPrevStatusChangeStr = HttpContext.Session.GetString(SessionLastDeliveredOrderPrevStatusChange);
 
-            if (lastDeliveredOrderId == null || lastDeliveredOrderPrevStatusId == null)
-                return RedirectToAction(nameof(Index)); // No hay última orden o estado previo
+            if (lastDeliveredOrderId == null || lastDeliveredOrderPrevStatusId == null || lastDeliveredOrderPrevStatusChangeStr == null)
+                return RedirectToAction(nameof(Index));
+
+            if (!DateTime.TryParse(lastDeliveredOrderPrevStatusChangeStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var lastDeliveredOrderPrevStatusChange))
+                return RedirectToAction(nameof(Index)); // fallback en caso de error al parsear
 
             var order = _unitOfWork.Order.Get(o => o.Id == lastDeliveredOrderId, includeProperties: "Status");
             if (order == null)
                 return RedirectToAction(nameof(Index));
 
-            // Restaurar el estado previo guardado
             order.StatusId = lastDeliveredOrderPrevStatusId.Value;
-            order.LastStatusChange = DateTime.Now;
+            order.LastStatusChange = lastDeliveredOrderPrevStatusChange;
 
             _unitOfWork.Order.Update(order);
             _unitOfWork.Save();
 
-            // Limpiar sesión para que no se pueda deshacer más de una vez
+            // Limpiar sesión para evitar deshacer repetido
             HttpContext.Session.Remove(SessionLastDeliveredOrderId);
             HttpContext.Session.Remove(SessionLastDeliveredOrderPrevStatusId);
+            HttpContext.Session.Remove(SessionLastDeliveredOrderPrevStatusChange);
 
             return RedirectToAction(nameof(Index));
         }

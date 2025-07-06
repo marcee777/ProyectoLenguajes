@@ -9,6 +9,7 @@
 
         public const string Image_DefaultName = "default.jpg";
 
+        public const string Status_Unconfirmed = "Unconfirmed";
         public const string Status_OnTime = "On Time";
         public const string Status_OverTime = "Over Time";
         public const string Status_Delayed = "Delayed";

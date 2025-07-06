@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Areas.Admin.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
@@ -56,6 +57,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
                     }).ToListAsync(),
                 Statuses = await _dbContext.Status
+                    .Where(s => s.Name != StaticValues.Status_Unconfirmed)
                     .Select(s => new SelectListItem
                     {
                         Value = s.Id.ToString(),
