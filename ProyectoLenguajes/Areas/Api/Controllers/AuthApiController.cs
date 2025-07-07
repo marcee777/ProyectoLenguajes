@@ -92,7 +92,12 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
             if (!signInResult.Succeeded)
                 return Unauthorized(new { message = "Invalid email or password." });
 
+            // Aquí se valida el rol
             var roles = await _userManager.GetRolesAsync(user);
+            if (!roles.Contains("Customer"))
+            {
+                return Unauthorized(new { message = "You are not authorized to log in here. Only customers are allowed." });
+            }
 
             var token = GenerateJwtToken(user, roles);
 

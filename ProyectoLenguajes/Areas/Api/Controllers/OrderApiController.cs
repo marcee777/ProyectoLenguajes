@@ -5,10 +5,6 @@ using ProyectoLenguajes.Models;
 using ProyectoLenguajes.Models.ApiModels;
 using ProyectoLenguajes.Utilities;
 using Microsoft.AspNetCore.Authorization;
-using System.Threading.Tasks;
-using System.Linq;
-using System;
-using System.Collections.Generic;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
@@ -185,7 +181,7 @@ namespace ProyectoLenguajes.Areas.Api
 
             order.StatusId = onTimeStatus.Id;
             order.CreatedAt = DateTime.Now; // ⚠️ Reiniciar CreatedAt al confirmar
-            order.LastStatusChange = DateTime.Now;
+            order.LastStatusChange = order.CreatedAt;
 
             await _context.SaveChangesAsync();
 

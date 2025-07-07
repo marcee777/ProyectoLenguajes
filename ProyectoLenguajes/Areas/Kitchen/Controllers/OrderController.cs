@@ -11,7 +11,7 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
-        private const int MaxOrdersToShow = 7;
+        private const int MaxOrdersToShow = 8;
 
         // Claves de sesión para guardar último pedido entregado y estado previo
         private const string SessionLastDeliveredOrderId = "_LastDeliveredOrderId";
@@ -28,8 +28,9 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
         {
             var allActiveOrders = _unitOfWork.Order
                 .GetAll(includeProperties: "Client,OrderDetails.Dish,Status")
-                .Where(o => o.Status.Name != StaticValues.Status_Canceled &&
-                            o.Status.Name != StaticValues.Status_Delivered)
+                .Where(o => o.Status.Name == StaticValues.Status_OnTime ||
+                    o.Status.Name == StaticValues.Status_OverTime ||
+                    o.Status.Name == StaticValues.Status_Delayed)
                 .OrderBy(o => o.CreatedAt)
                 .ToList();
 
@@ -48,23 +49,53 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             return View(orderVMs);
         }
 
+        [HttpGet]
+        public IActionResult GetActiveOrders()
+        {
+            var allActiveOrders = _unitOfWork.Order
+                .GetAll(includeProperties: "Client,OrderDetails.Dish,Status")
+                .Where(o => o.Status.Name == StaticValues.Status_OnTime ||
+                    o.Status.Name == StaticValues.Status_OverTime ||
+                    o.Status.Name == StaticValues.Status_Delayed)
+                .OrderBy(o => o.CreatedAt)
+                .ToList();
+
+            var ordersToShow = allActiveOrders.Take(MaxOrdersToShow).Select(o => new
+            {
+                Id = o.Id,
+                CreatedAt = o.CreatedAt.ToString("g"),
+                ClientName = $"{o.Client.FirstName} {o.Client.LastName}",
+                StatusName = o.Status.Name,
+                Details = o.OrderDetails.Select(d => new
+                {
+                    DishName = d.Dish.Name,
+                    Amount = d.Amount
+                })
+            }).ToList();
+
+            return Json(new
+            {
+                Orders = ordersToShow,
+                HasMoreOrders = allActiveOrders.Count > MaxOrdersToShow
+            });
+        }
+
         // POST: Marcar como entregado
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult MarkAsDelivered(int id)
+        [IgnoreAntiforgeryToken] // Solo si se decide no enviar token, o manejar token manual
+        public IActionResult MarkAsDelivered([FromBody] int id)
         {
             var order = _unitOfWork.Order.Get(o => o.Id == id, includeProperties: "Status");
             if (order == null)
-                return NotFound();
+                return NotFound(new { message = "Order not found." });
 
             var deliveredStatus = _unitOfWork.Status.Get(s => s.Name == StaticValues.Status_Delivered);
             if (deliveredStatus == null)
-                return BadRequest("Delivered status not found.");
+                return BadRequest(new { message = "Delivered status not found." });
 
-            // Guardar en sesión el Id del pedido, estado previo y LastStatusChange previo
             HttpContext.Session.SetInt32(SessionLastDeliveredOrderId, order.Id);
             HttpContext.Session.SetInt32(SessionLastDeliveredOrderPrevStatusId, order.StatusId);
-            HttpContext.Session.SetString(SessionLastDeliveredOrderPrevStatusChange, order.LastStatusChange.ToString("o")); // ISO 8601
+            HttpContext.Session.SetString(SessionLastDeliveredOrderPrevStatusChange, order.LastStatusChange.ToString("o"));
 
             order.StatusId = deliveredStatus.Id;
             order.LastStatusChange = DateTime.Now;
@@ -72,12 +103,12 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             _unitOfWork.Order.Update(order);
             _unitOfWork.Save();
 
-            return RedirectToAction(nameof(Index));
+            return Ok(new { message = "Order marked as delivered." });
         }
 
         // POST: Deshacer último cambio a entregado
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [IgnoreAntiforgeryToken]
         public IActionResult UndoLastDelivered()
         {
             var lastDeliveredOrderId = HttpContext.Session.GetInt32(SessionLastDeliveredOrderId);
@@ -85,14 +116,14 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             var lastDeliveredOrderPrevStatusChangeStr = HttpContext.Session.GetString(SessionLastDeliveredOrderPrevStatusChange);
 
             if (lastDeliveredOrderId == null || lastDeliveredOrderPrevStatusId == null || lastDeliveredOrderPrevStatusChangeStr == null)
-                return RedirectToAction(nameof(Index));
+                return BadRequest(new { message = "No previous delivered order to undo." });
 
             if (!DateTime.TryParse(lastDeliveredOrderPrevStatusChangeStr, null, System.Globalization.DateTimeStyles.RoundtripKind, out var lastDeliveredOrderPrevStatusChange))
-                return RedirectToAction(nameof(Index)); // fallback en caso de error al parsear
+                return BadRequest(new { message = "Could not parse previous LastStatusChange." });
 
             var order = _unitOfWork.Order.Get(o => o.Id == lastDeliveredOrderId, includeProperties: "Status");
             if (order == null)
-                return RedirectToAction(nameof(Index));
+                return NotFound(new { message = "Order not found." });
 
             order.StatusId = lastDeliveredOrderPrevStatusId.Value;
             order.LastStatusChange = lastDeliveredOrderPrevStatusChange;
@@ -100,12 +131,12 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             _unitOfWork.Order.Update(order);
             _unitOfWork.Save();
 
-            // Limpiar sesión para evitar deshacer repetido
+            // Limpiar sesión
             HttpContext.Session.Remove(SessionLastDeliveredOrderId);
             HttpContext.Session.Remove(SessionLastDeliveredOrderPrevStatusId);
             HttpContext.Session.Remove(SessionLastDeliveredOrderPrevStatusChange);
 
-            return RedirectToAction(nameof(Index));
+            return Ok(new { message = "Undo successful." });
         }
     }
 }

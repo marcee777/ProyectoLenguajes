@@ -1,6 +1,4 @@
-﻿@model List<ProyectoLenguajes.Models.ViewModels.OrderVM>
-@using ProyectoLenguajes.Utilities
-
+﻿@using ProyectoLenguajes.Utilities
 @{
     ViewData["Title"] = "Active Orders - Kitchen";
 }
@@ -8,65 +6,157 @@
 <div class="container my-5">
     <h1 class="mb-4 text-center">Active Orders</h1>
 
-    @if (!Model.Any())
-    {
-        <div class="alert alert-info text-center">There are no active orders at the moment.</div>
-    }
-    else
-    {
-        <div class="d-flex flex-column align-items-center gap-4">
-            @foreach (var orderVm in Model)
-            {
-                var estado = orderVm.Order.Status.Name;
-                string bgColorClass = estado switch
-                {
-                    StaticValues.Status_OnTime => "bg-success text-white",
-                    StaticValues.Status_OverTime => "bg-warning",
-                    StaticValues.Status_Delayed => "bg-danger text-white",
-                    _ => "bg-secondary text-white"
-                };
+    <div id="ordersContainer" class="d-flex flex-column align-items-center gap-4"></div>
 
-                <div class="card @bgColorClass shadow-sm w-100" style="max-width: 600px;">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <strong>ORDER #@orderVm.Order.Id</strong>
-                        <span>Created: @orderVm.Order.CreatedAt.ToString("g")</span>
-                    </div>
-                    <div class="card-body bg-white text-dark">
-                        <p><strong>Client:</strong> @orderVm.Order.Client.FirstName @orderVm.Order.Client.LastName</p>
+    <div id="hasMoreOrdersAlert" class="alert alert-info text-center mt-4" style="display: none;">
+        There are more orders beyond the ones shown here.
+    </div>
 
-                        <h5>Dishes:</h5>
-                        <ul class="list-group mb-3">
-                            @foreach (var detail in orderVm.OrderDetails)
-                            {
-                                <li class="list-group-item">@detail.Dish.Name x @detail.Amount</li>
-                            }
-                        </ul>
+    <div class="d-flex justify-content-center mt-4">
+        <button id="undoBtn" class="btn btn-warning" style="display:none;">
+            Undo Last Delivered Order
+        </button>
+    </div>
 
-                        <form asp-action="MarkAsDelivered" method="post">
-                            <input type="hidden" name="id" value="@orderVm.Order.Id" />
-                            <button type="submit" class="btn btn-dark btn-sm w-100">Mark as Delivered</button>
-                        </form>
-                    </div>
-                </div>
-            }
-        </div>
-
-        @if (ViewBag.HasMoreOrders == true)
-        {
-            <div class="alert alert-info text-center mt-4">
-                There are more orders beyond the ones shown here.
-            </div>
-        }
-    }
-
-    @if (ViewBag.LastDeliveredOrderId != null)
-    {
-        <form asp-action="UndoLastDelivered" method="post" class="mt-4 text-center">
-            <button type="submit" class="btn btn-warning">Undo Last Delivered Order</button>
-        </form>
-    }
+    <!-- Contenedor para los Toasts -->
+    <div aria-live="polite" aria-atomic="true" class="position-fixed top-0 end-0 p-3" style="z-index: 1100;">
+        <div id="toastContainer"></div>
+    </div>
 
     <div class="d-flex justify-content-end mt-5">
         <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">Back</a>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        async function loadOrders() {
+            try {
+                const res = await fetch('/Kitchen/Order/GetActiveOrders');
+                if (!res.ok) throw new Error("Failed to load orders");
+
+                const data = await res.json();
+                const ordersContainer = document.getElementById("ordersContainer");
+                ordersContainer.innerHTML = ""; // limpiar
+
+                if (data.orders.length === 0) {
+                    ordersContainer.innerHTML = '<div class="alert alert-info text-center w-100">There are no active orders at the moment.</div>';
+                } else {
+                    data.orders.forEach((order, index) => {
+                        let bgClass = "bg-secondary text-white";
+                        switch(order.statusName) {
+                            case "@StaticValues.Status_OnTime":
+                                bgClass = "bg-success text-white"; break;
+                            case "@StaticValues.Status_OverTime":
+                                bgClass = "bg-warning"; break;
+                            case "@StaticValues.Status_Delayed":
+                                bgClass = "bg-danger text-white"; break;
+                        }
+
+                        const card = document.createElement("div");
+                        card.className = `card ${bgClass} shadow-sm w-100`;
+                        card.style.maxWidth = "600px";
+
+                        card.innerHTML = `
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <strong>ORDER #${index + 1}</strong>
+                                <span>Created: ${order.createdAt}</span>
+                            </div>
+                            <div class="card-body bg-white text-dark">
+                                <p><strong>Client:</strong> ${order.clientName}</p>
+                                <h5>Dishes:</h5>
+                                <ul class="list-group mb-3">
+                                    ${order.details.map(d => `<li class="list-group-item">${d.dishName} x ${d.amount}</li>`).join('')}
+                                </ul>
+                                <button class="btn btn-dark btn-sm w-100" onclick="markAsDelivered(${order.id})">
+                                    Mark as Delivered
+                                </button>
+                            </div>
+                        `;
+                        ordersContainer.appendChild(card);
+                    });
+                }
+
+                // Mostrar alerta de más órdenes si aplica
+                document.getElementById("hasMoreOrdersAlert").style.display = data.hasMoreOrders ? "block" : "none";
+
+                // Mostrar / ocultar undo
+                document.getElementById("undoBtn").style.display = data.hasMoreOrders || data.orders.length ? "block" : "none";
+
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function markAsDelivered(orderId) {
+            try {
+                const res = await fetch('/Kitchen/Order/MarkAsDelivered', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(orderId)
+                });
+                if (!res.ok) throw new Error("Failed to mark as delivered");
+                const data = await res.json();
+                showToast(data.message || "Order marked as delivered.", "success");
+                loadOrders();
+            } catch (err) {
+                console.error(err);
+                showToast("Error marking order as delivered.", "danger");
+            }
+        }
+
+        async function undoLastDelivered() {
+            try {
+                const res = await fetch('/Kitchen/Order/UndoLastDelivered', {
+                    method: "POST"
+                });
+                if (!res.ok) throw new Error("Failed to undo last delivered");
+                const data = await res.json();
+                showToast(data.message || "Undo successful.", "success");
+                loadOrders();
+            } catch (err) {
+                console.error(err);
+                showToast("Error undoing last delivered order.", "danger");
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toastContainer = document.getElementById('toastContainer');
+
+            // Crear el div del toast
+            const toastEl = document.createElement('div');
+            toastEl.className = `toast align-items-center text-white bg-${type} border-0`;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+            toastEl.style.minWidth = '250px';
+
+            toastEl.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toastEl);
+
+            // Inicializar y mostrar el toast con Bootstrap 5
+            const bsToast = new bootstrap.Toast(toastEl, { delay: 4000 });
+            bsToast.show();
+            
+            // Eliminar el toast del DOM cuando desaparezca para limpiar
+            toastEl.addEventListener('hidden.bs.toast', () => {
+                toastEl.remove();
+            });
+        }
+
+        // Bind undo
+        document.getElementById("undoBtn").addEventListener("click", undoLastDelivered);
+
+        // Cargar al inicio y luego cada 5s
+        loadOrders();
+        setInterval(loadOrders, 5000);
+    </script>
+}

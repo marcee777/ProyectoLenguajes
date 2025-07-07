@@ -55,5 +55,15 @@
 
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial" />
+	<script src="https://cdn.tiny.cloud/1/98dawcdp6hneyx1koa2jleuobrq13l9p9wldcqr2ylrntjxa/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+
+	<script>
+		tinymce.init({
+		  selector: '#Description',  // solo el textarea de descripción
+		  plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+		  toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+		});
+	</script>
+
+	<partial name="_ValidationScriptsPartial" />
 }

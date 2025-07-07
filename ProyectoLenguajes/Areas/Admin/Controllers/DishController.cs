@@ -21,7 +21,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private IWebHostEnvironment _webHostEnvironment;
 
-
         public DishController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
         {
             _unitOfWork = unitOfWork;
@@ -117,7 +116,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 TempData["success"] = "Dish saved successfully";
 
             }
-            // Luego cambiar ??
+
             return RedirectToAction("Index"); 
         }
 

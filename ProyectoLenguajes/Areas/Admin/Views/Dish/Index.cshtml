@@ -35,7 +35,9 @@
 
 				<div class="dish-details">
 					<h3 class="dish-title">@dish.Name</h3>
-					<p class="dish-description">@dish.Description</p>
+					<div class="dish-description">
+						@Html.Raw(dish.Description)
+					</div>
 					<p class="dish-price text-success fw-semibold">$@dish.Price.ToString("F2")</p>
 
 					<div class="d-flex gap-2 mt-2">
@@ -55,7 +57,6 @@
 		<a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">Back</a>
 	</div>
 
-
 	<!-- Estilos -->
 	<style>
 		.dish-grid {
@@ -74,10 +75,10 @@
 			transition: transform 0.25s ease, box-shadow 0.25s ease;
 		}
 
-			.dish-card:hover {
-				transform: translateY(-4px);
-				box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-			}
+		.dish-card:hover {
+			transform: translateY(-4px);
+			box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+		}
 
 		.dish-image {
 			width: 100%;
@@ -98,10 +99,11 @@
 		}
 
 		.dish-description {
-			font-size: 0.85rem;
-			color: #555;
-			max-height: 4.5rem;
-			overflow-y: auto;
+			display: -webkit-box;
+			-webkit-line-clamp: 5; /* Número de líneas */
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			text-overflow: ellipsis;
 		}
 
 		.dish-price {
@@ -113,9 +115,9 @@
 			transition: all 0.2s ease;
 		}
 
-			.btn:hover {
-				transform: scale(1.03);
-			}
+		.btn:hover {
+			transform: scale(1.03);
+		}
 	</style>
 
 </div>
