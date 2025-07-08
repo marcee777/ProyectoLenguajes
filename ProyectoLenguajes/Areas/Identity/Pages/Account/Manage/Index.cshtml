@@ -1,28 +1,36 @@
 ﻿@page
 @model IndexModel
+
 @{
     ViewData["Title"] = "Profile";
     ViewData["ActivePage"] = ManageNavPages.Index;
 }
 
-<h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" for="StatusMessage" />
-<div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
-                <label asp-for="Username" class="form-label"></label>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number."/>
-                <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
-            </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
-        </form>
-    </div>
+<div class="container my-4" style="max-width: 500px;">
+    <h3 class="text-center mb-3">@ViewData["Title"]</h3>
+    <hr class="mb-3" />
+
+    <partial name="_StatusMessage" for="StatusMessage" />
+
+    <form id="profile-form" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2 small" role="alert"></div>
+
+        <div class="mb-2">
+            <label asp-for="Username" class="form-label small">Username</label>
+            <input asp-for="Username" class="form-control form-control-sm bg-light border border-warning-subtle" disabled />
+        </div>
+
+        <div class="mb-2">
+            <label asp-for="Input.PhoneNumber" class="form-label small">Phone Number</label>
+            <input asp-for="Input.PhoneNumber" class="form-control form-control-sm bg-light border border-warning-subtle" />
+            <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="d-grid gap-2 mt-3">
+            <button id="update-profile-button" type="submit" class="btn btn-warning btn-sm">Save</button>
+            <a asp-page="./Index" class="btn btn-light btn-sm">Cancel</a>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
