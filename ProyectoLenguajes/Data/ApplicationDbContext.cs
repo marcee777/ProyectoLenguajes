@@ -5,7 +5,27 @@ using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Data
 {
-    
+    /**
+     * Clase ApplicationDbContext
+     * 
+     * Representa el contexto de la base de datos principal de la aplicación, extendiendo 
+     * de IdentityDbContext para integrar la gestión de usuarios con ASP.NET Identity.
+     * Define los DbSet que representan las entidades del dominio como Orders, OrderDetails, 
+     * Dishes, ApplicationUsers y Status, y configura relaciones y datos iniciales mediante 
+     * el método OnModelCreating.
+     * 
+     * También establece una clave primaria compuesta para la entidad OrderDetail y 
+     * precarga los estados del ciclo de vida de una orden utilizando valores definidos 
+     * en la clase estática StaticValues.
+     * 
+     * Esta clase permite la interacción fluida con la base de datos mediante Entity Framework Core.
+     * 
+     * @author Melanie Arce C30634  
+     * @author Carolina Rodríguez C36640  
+     * @author Marcela Rojas C36975  
+     * @version 07/07/25
+     */
+
     public class ApplicationDbContext : IdentityDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) 

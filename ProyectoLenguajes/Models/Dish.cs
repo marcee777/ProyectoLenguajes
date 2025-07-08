@@ -7,12 +7,18 @@ namespace ProyectoLenguajes.Models
 {
 
     /**
-    * Modelo que representa el plato
-    * @author: Melanie Arce C30634
-    * @author: Carolina Rodriguez C36640
-    * @author: Marcela Rojas C36975
-    * @version: 16/06/25
-    */
+      * Clase Dish
+      * 
+      * Representa el modelo de un plato en el sistema con propiedades para
+      * Id, nombre, descripción, precio, imagen y estado de disponibilidad.
+      * Incluye validaciones y anotaciones para la presentación y requerimientos de datos.
+      * 
+      * @author Melanie Arce C30634
+      * @author Carolina Rodriguez C36640
+      * @author Marcela Rojas C36975
+      * @version 07/07/25
+      */
+
     public class Dish
     {
         [Key]

@@ -10,15 +10,57 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = Utilities.StaticValues.Role_Admin)]
+
+
+    /**
+     * Controlador que gestiona las operaciones administrativas relacionadas con las órdenes de los clientes.
+     * Permite visualizar órdenes con filtros, y actualizar el estado de las mismas.
+     * Utiliza el contexto de base de datos para obtener y modificar la información.
+     * 
+     * Este controlador está restringido para usuarios con el rol de administrador.
+     * 
+     * @author: Melanie Arce C30634
+     * @author: Carolina Rodríguez C36640
+     * @author: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
+
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
 
+        /**
+         * Constructor del controlador OrderController
+         * Inicializa el contexto de base de datos para acceder a las órdenes y sus relaciones
+         * 
+         * @param dbContext Contexto de la base de datos para acceder a las entidades relacionadas con órdenes
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         public OrderController(ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
         }
 
+
+
+        /**
+         * Método que muestra la lista de órdenes con opción de filtrar por cliente, estado y fechas
+         * 
+         * @param clientId Identificador del cliente (opcional) para filtrar las órdenes por usuario
+         * @param statusId Identificador del estado de la orden (opcional) para filtrar por estado específico
+         * @param startDate Fecha de inicio (opcional) para filtrar órdenes desde una fecha específica
+         * @param endDate Fecha de fin (opcional) para filtrar órdenes hasta una fecha específica
+         * 
+         * @return Vista con un ViewModel que contiene la lista de órdenes filtradas y los selectores para clientes y estados disponibles en el sistema
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         // GET: /Order
         public async Task<IActionResult> Index(string clientId, int? statusId, DateTime? startDate, DateTime? endDate)
         {
@@ -68,6 +110,22 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             return View(model);
         }
+
+
+
+        /**
+         * Método que actualiza el estado de una orden específica
+         * 
+         * @param orderId Identificador de la orden a actualizar
+         * @param newStatusId Nuevo estado que se asignará a la orden
+         * 
+         * @return Redirecciona al índice si la operación es exitosa; retorna NotFound si la orden no existe en la base de datos
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
 
         // POST: /Order/UpdateStatus
         [HttpPost]

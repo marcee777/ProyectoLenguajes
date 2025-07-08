@@ -16,6 +16,29 @@ using ProyectoLenguajes.Services;
 using ProyectoLenguajes.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 
+
+
+/**
+ * Archivo de configuración principal para la aplicación ASP.NET Core.
+ * 
+ * Configura los servicios y el pipeline de middleware, incluyendo:
+ * - Conexión a la base de datos SQL Server mediante Entity Framework Core.
+ * - Configuración de Identity para autenticación y autorización con soporte para JWT y cookies.
+ * - Configuración de políticas CORS abiertas para permitir acceso desde cualquier origen.
+ * - Configuración y habilitación de sesiones para almacenamiento temporal.
+ * - Registro de servicios personalizados, como UnitOfWork, EmailSender y el servicio en background OrderStatusUpdaterService.
+ * - Definición de rutas MVC y Razor Pages.
+ * 
+ * La configuración JWT se lee desde appsettings.json y se utiliza para validar tokens en las peticiones API.
+ * 
+ * @author Melanie Arce C30634
+ * @author Carolina Rodríguez C36640
+ * @author Marcela Rojas C36975
+ * @version 07/07/25
+ */
+
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Inicio de lectura de configuracion JWT desde appsettings.json

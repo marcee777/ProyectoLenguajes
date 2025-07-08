@@ -11,6 +11,19 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
     [Route("Api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+    /**
+     * Controlador API para la gestión y consulta de platos activos.
+     * Proporciona endpoints para obtener la lista de platos activos (nombre y precio) y
+     * para obtener los detalles completos de un plato específico.
+     * 
+     * Está protegido mediante autenticación JWT para garantizar acceso autorizado.
+     * 
+     * @autor: Melanie Arce C30634
+     * @autor: Carolina Rodríguez C36640
+     * @autor: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
     public class DishApiController : ControllerBase
     {
 
@@ -22,6 +35,20 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // Obtener lista de platos activos (solo nombre y precio), con búsqueda opcional
+        /**
+         * Obtiene la lista de platos activos, permitiendo filtrar por nombre mediante búsqueda opcional.
+         * 
+         * @param search Parámetro opcional para filtrar platos cuyo nombre contenga esta cadena (case-insensitive)
+         * @return Lista de objetos DishListDto con Id, Nombre y Precio de los platos activos que cumplen el filtro
+         * 
+         * Método accesible vía GET en /Api/DishApi
+         * 
+         * @autor: Melanie Arce C30634
+         * @autor: Carolina Rodríguez C36640
+         * @autor: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] string? search)
         {
@@ -48,6 +75,20 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // Obtener detalles completos de un plato activo por id
+        /**
+         * Obtiene los detalles completos de un plato activo específico por su Id.
+         * 
+         * @param id Identificador del plato a consultar
+         * @return Detalle del plato en formato DishDetailDto o NotFound si no existe o está inactivo
+         * 
+         * Método accesible vía GET en /Api/DishApi/{id}
+         * 
+         * @autor: Melanie Arce C30634
+         * @autor: Carolina Rodríguez C36640
+         * @autor: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {

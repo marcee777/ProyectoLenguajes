@@ -12,6 +12,19 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
     [Area("Api")]
     [Route("Api/[controller]")]
     [ApiController]
+
+    /**
+     * Controlador API para gestionar la autenticación de usuarios en la aplicación.
+     * Permite registrar nuevos usuarios, iniciar sesión y generar tokens JWT para autenticación segura.
+     * 
+     * Utiliza ASP.NET Identity para la gestión de usuarios, roles y validaciones.
+     * El controlador está en el área "Api" y expone endpoints REST para registro y login.
+     * 
+     * @author: Melanie Arce C30634
+     * @author: Carolina Rodríguez C36640
+     * @author: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
     public class AuthApiController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -19,6 +32,20 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _configuration;
 
+        /**
+         * Constructor del controlador AuthApiController
+         * Inicializa los servicios necesarios para la gestión de usuarios, roles, inicio de sesión y configuración.
+         * 
+         * @param userManager Servicio para administrar usuarios
+         * @param signInManager Servicio para gestionar inicio de sesión
+         * @param roleManager Servicio para administrar roles
+         * @param configuration Servicio para acceder a configuraciones de la aplicación, como parámetros JWT
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         public AuthApiController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signInManager,
@@ -32,6 +59,23 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // POST: Api/AuthApi/Register
+
+        /**
+         * Endpoint para registrar un nuevo usuario cliente.
+         * Valida el modelo recibido, verifica si el email ya está registrado,
+         * crea el usuario y lo asigna al rol "Customer".
+         * 
+         * @param model DTO con los datos necesarios para registrar un usuario (Email, Password, Nombre, Apellido, Dirección)
+         * @return Respuesta HTTP con mensaje de éxito o error según el resultado del registro
+         * 
+         * Método accesible vía POST en /Api/AuthApi/Register
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpPost("Register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto model)
         {
@@ -71,6 +115,21 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // POST: Api/AuthApi/Login
+
+        /**
+         * Endpoint para autenticación de usuarios.
+         * Valida las credenciales recibidas, verifica bloqueo, rol y genera un token JWT si la autenticación es exitosa.
+         * 
+         * @param model DTO con las credenciales para login (Email y Password)
+         * @return Respuesta HTTP con token JWT para autenticación o mensaje de error en caso de falla
+         * 
+         * Método accesible vía POST en /Api/AuthApi/Login
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         [HttpPost("Login")]
         public async Task<IActionResult> Login([FromBody] LoginDto model)
         {
