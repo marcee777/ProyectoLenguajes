@@ -4,6 +4,22 @@ using ProyectoLenguajes.Utilities;
 
 namespace ProyectoLenguajes.Services
 {
+    /**
+     * Clase OrderStatusUpdaterService
+     * 
+     * Servicio en segundo plano que monitorea y actualiza periódicamente el estado de las órdenes activas
+     * dentro del sistema. Cambia automáticamente el estado de las órdenes de "On Time" a "Over Time" y 
+     * posteriormente a "Delayed" según los tiempos configurados para cada estado.
+     * 
+     * Utiliza un alcance de servicio para obtener el contexto de base de datos y registrar eventos en el logger.
+     * Se ejecuta continuamente hasta que se cancele la tarea.
+     * 
+     * @author Melanie Arce C30634
+     * @author Carolina Rodriguez C36640
+     * @author Marcela Rojas C36975
+     * @version 07/07/25
+     */
+
     public class OrderStatusUpdaterService : BackgroundService
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;

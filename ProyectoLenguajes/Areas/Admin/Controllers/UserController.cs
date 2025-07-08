@@ -10,11 +10,39 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = StaticValues.Role_Admin)]
+
+    /**
+     * Controlador que gestiona la administración de usuarios en el área de administrador.
+     * Permite listar, buscar, actualizar, eliminar, bloquear y desbloquear usuarios.
+     * Utiliza Identity para gestionar la información de autenticación y roles.
+     * 
+     * Este controlador está restringido a usuarios con el rol de administrador.
+     * 
+     * Funciona sobre el modelo personalizado ApplicationUser y el ViewModel UserVM.
+     * 
+     * @author: Melanie Arce C30634
+     * @author: Carolina Rodríguez C36640
+     * @author: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
     public class UserController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
+
+        /**
+         * Constructor del controlador UserController
+         * Inicializa los servicios de gestión de usuarios y roles provistos por ASP.NET Identity
+         * 
+         * @param userManager Servicio para manipular entidades de usuario
+         * @param roleManager Servicio para manipular roles de usuario en el sistema de identidad de ASP.NET Core
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         public UserController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
@@ -22,6 +50,20 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // GET: Admin/User
+        /**
+         * Método que muestra la lista de usuarios del sistema con opción de búsqueda por nombre, apellido o correo electrónico.
+         * También obtiene los roles e información extendida de cada usuario.
+         * 
+         * @param search Cadena de búsqueda opcional para filtrar usuarios por nombre, apellido o correo
+         * @return Vista con la lista de usuarios transformada en el ViewModel UserVM, incluyendo estado de bloqueo y roles asignados.
+         * 
+         * Nota: Se excluyen usuarios que no implementen ApplicationUser como tipo base.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         public async Task<IActionResult> Index(string search)
         {
             var users = await _userManager.Users.ToListAsync();
@@ -71,6 +113,20 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // GET: Admin/User/Update/5
+
+        /**
+         * Método que carga el formulario para editar la información de un usuario específico.
+         * 
+         * @param id Identificador del usuario a editar
+         * @return Vista con los datos cargados en el ViewModel UserVM o errores si no se encuentra el usuario o no es del tipo esperado (ApplicationUser)
+         * 
+         * Valida existencia del usuario y su tipo antes de mostrar la vista de edición.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         public async Task<IActionResult> Update(string id)
         {
             if (id == null) return NotFound();
@@ -98,6 +154,26 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // POST: Admin/User/Update/5
+
+
+        /**
+         * Método que procesa la edición de un usuario.
+         * Valida que el modelo sea correcto, busca el usuario, actualiza sus datos y guarda los cambios.
+         * 
+         * @param model Objeto UserVM con los nuevos datos del usuario a actualizar
+         * @return Redirecciona al índice si se guarda correctamente; si hay errores, los muestra en la vista de edición
+         * 
+         * Usa el UserManager para actualizar el objeto ApplicationUser asociado al usuario.
+         * Protegido contra CSRF con el token de validación antifalsificación.
+         * 
+         * @see UserVM
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Update(UserVM model)
@@ -130,6 +206,25 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // POST: Admin/User/Delete/5
+
+
+        /**
+         * Método que elimina un usuario del sistema de forma permanente.
+         * 
+         * @param id Identificador del usuario a eliminar
+         * @return Redirecciona al índice con un mensaje en TempData que indica si la operación fue exitosa o no
+         * 
+         * Valida existencia y tipo del usuario antes de proceder a la eliminación.
+         * Protegido contra CSRF con token de validación antifalsificación.
+         * 
+         * @see ApplicationUser
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string id)
@@ -154,6 +249,27 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         }
 
         // POST: Admin/User/Block/5
+
+        /**
+         * Método que bloquea a un usuario con rol "Customer" por 30 minutos.
+         * 
+         * @param id Identificador del usuario a bloquear
+         * @return Redirecciona al índice con mensaje de éxito o error si el usuario no cumple los criterios
+         * 
+         * Aplica un bloqueo temporal mediante LockoutEnd en UTC.
+         * Solo usuarios con rol "Customer" pueden ser bloqueados.
+         * Protegido contra CSRF.
+         * 
+         * @see ApplicationUser
+         * 
+         * @see UserManager.SetLockoutEndDateAsync
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Block(string id)
@@ -180,6 +296,26 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
 
         // POST: Admin/User/Unblock/5
+
+        /**
+         * Método que desbloquea a un usuario con rol "Customer", eliminando la fecha de bloqueo.
+         * 
+         * @param id Identificador del usuario a desbloquear
+         * @return Redirecciona al índice con mensaje de éxito o error si no se cumple alguna condición
+         * 
+         * Solo usuarios con el rol "Customer" pueden ser desbloqueados.
+         * Protegido contra CSRF.
+         * 
+         * @see ApplicationUser
+         * 
+         * @see UserManager.SetLockoutEndDateAsync
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unblock(string id)

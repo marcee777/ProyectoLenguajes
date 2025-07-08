@@ -8,6 +8,17 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
 {
     [Area("Kitchen")]
     [Authorize(Roles = StaticValues.Role_Kitchen)]
+
+    /*
+     * Controlador encargado de gestionar la cola de pedidos activos en el área de cocina.
+     * Permite listar los pedidos que están en proceso, marcarlos como entregados y revertir la última acción.
+     *
+     * @author Melanie Arce C30634
+     * @author Carolina Rodríguez C36640
+     * @author Marcela Rojas C36975
+     * @version 07/07/25
+     */
+
     public class OrderController : Controller
     {
         private readonly IUnitOfWork _unitOfWork;
@@ -24,6 +35,19 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
         }
 
         // GET: Mostrar pedidos activos (cola)
+        /*
+         * Muestra en la vista los primeros 8 pedidos activos (con estados OnTime, OverTime o Delayed)
+         * que están pendientes de ser preparados o entregados por la cocina.
+         * También verifica si existen más pedidos en cola y carga la última entrega marcada desde sesión.
+         *
+         * @return Vista con los pedidos activos que debe visualizar el personal de cocina.
+         *
+         * @author Melanie Arce C30634
+         * @author Carolina Rodríguez C36640
+         * @author Marcela Rojas C36975
+         * @version 07/07/25
+         */
+
         public IActionResult Index()
         {
             var allActiveOrders = _unitOfWork.Order
@@ -48,6 +72,19 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
 
             return View(orderVMs);
         }
+
+
+        /*
+         * Devuelve un listado en formato JSON de los pedidos activos, incluyendo detalles del cliente
+         * y los platos solicitados. Este endpoint es útil para llamadas AJAX desde la interfaz de cocina.
+         *
+         * @return JSON con la lista de pedidos activos y un indicador si hay más de 8.
+         *
+         * @author Melanie Arce C30634
+         * @author Carolina Rodríguez C36640
+         * @author Marcela Rojas C36975
+         * @version 07/07/25
+         */
 
         [HttpGet]
         public IActionResult GetActiveOrders()
@@ -81,6 +118,19 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
         }
 
         // POST: Marcar como entregado
+        /*
+         * Marca un pedido específico como entregado, cambiando su estado a "Delivered".
+         * Guarda en la sesión el estado anterior del pedido para permitir deshacer esta acción si es necesario.
+         *
+         * @param id Identificador del pedido que se desea marcar como entregado.
+         * @return JSON con mensaje de éxito o error según la operación realizada.
+         *
+         * @author Melanie Arce C30634
+         * @author Carolina Rodríguez C36640
+         * @author Marcela Rojas C36975
+         * @version 07/07/25
+         */
+
         [HttpPost]
         [IgnoreAntiforgeryToken] // Solo si se decide no enviar token, o manejar token manual
         public IActionResult MarkAsDelivered([FromBody] int id)
@@ -106,7 +156,18 @@ namespace ProyectoLenguajes.Areas.Kitchen.Controllers
             return Ok(new { message = "Order marked as delivered." });
         }
 
-        // POST: Deshacer último cambio a entregado
+        /*
+         * Deshace la última acción de entrega registrada, restaurando el estado y fecha anterior del pedido
+         * a partir de los datos almacenados en la sesión.
+         *
+         * @return JSON con un mensaje indicando si la reversión fue exitosa o si no hay datos para restaurar.
+         *
+         * @author Melanie Arce C30634
+         * @author Carolina Rodríguez C36640
+         * @author Marcela Rojas C36975
+         * @version 07/07/25
+         */
+
         [HttpPost]
         [IgnoreAntiforgeryToken]
         public IActionResult UndoLastDelivered()

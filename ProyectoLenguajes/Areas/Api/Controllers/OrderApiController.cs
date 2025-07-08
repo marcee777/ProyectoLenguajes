@@ -14,6 +14,19 @@ namespace ProyectoLenguajes.Areas.Api
     [Route("Api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+    /**
+     * Controlador API para la gestión del carrito y las órdenes de los clientes.
+     * Permite obtener la orden activa, agregar o eliminar platos del carrito,
+     * confirmar la orden y consultar información básica del usuario autenticado.
+     * 
+     * Todos los endpoints están protegidos por autenticación JWT.
+     * 
+     * @author: Melanie Arce C30634
+     * @author: Carolina Rodríguez C36640
+     * @author: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
     public class OrderApiController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
@@ -25,6 +38,21 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // Obtener carrito actual (orden con estado "Unconfirmed")
+        /**
+         * Obtiene la orden activa (carrito) del cliente autenticado, es decir,
+         * aquella con estado "Unconfirmed".
+         * 
+         * @return Un objeto OrderDto con los detalles de la orden activa, o null si no hay una.
+         * 
+         * Ruta: GET /Api/OrderApi/My-Active
+         * Protegido por JWT.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpGet("My-Active")]
         public async Task<IActionResult> GetMyActiveOrder()
         {
@@ -66,6 +94,22 @@ namespace ProyectoLenguajes.Areas.Api
         }
 
         // Agregar plato al carrito
+        /**
+         * Agrega un plato al carrito del usuario autenticado. Si no hay una orden activa,
+         * se crea una nueva. Si el plato ya estaba, se incrementa la cantidad.
+         * 
+         * @param DishId Id del plato a agregar
+         * @param Amount Cantidad del plato a agregar
+         * @return Mensaje de éxito o error en formato JSON
+         * 
+         * Ruta: POST /Api/OrderApi/Add-Item
+         * Protegido por JWT.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         [HttpPost("Add-Item")]
         public async Task<IActionResult> AddItem([FromForm] int DishId, [FromForm] int Amount)
         {
@@ -121,7 +165,22 @@ namespace ProyectoLenguajes.Areas.Api
             return Ok(new { Success = true, Message = "Item added to cart" });
         }
 
-        // Eliminar ítem del carrito
+
+        /**
+         * Elimina un ítem específico del carrito del usuario autenticado.
+         * 
+         * @param dishId Id del plato a eliminar
+         * @return Mensaje de éxito o error si no se encuentra la orden o el ítem
+         * 
+         * Ruta: DELETE /Api/OrderApi/Remove-Item/{dishId}
+         * Protegido por JWT.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
+
         [HttpDelete("Remove-Item/{dishId}")]
         public async Task<IActionResult> RemoveItem(int dishId)
         {
@@ -151,7 +210,20 @@ namespace ProyectoLenguajes.Areas.Api
             return Ok(new { Success = true, Message = "Item removed from cart" });
         }
 
-        // Confirmar carrito
+        /**
+         * Confirma la orden activa (carrito) del cliente autenticado, cambiando su estado
+         * de "Unconfirmed" a "OnTime", y registrando la fecha de creación.
+         * 
+         * @return Mensaje de éxito o error si no hay carrito o si está vacío
+         * 
+         * Ruta: POST /Api/OrderApi/Confirm
+         * Protegido por JWT.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         [HttpPost("Confirm")]
         public async Task<IActionResult> ConfirmMyCart()
         {
@@ -188,21 +260,5 @@ namespace ProyectoLenguajes.Areas.Api
             return Ok(new { Success = true, Message = "Order confirmed successfully!" });
         }
 
-
-        // Pruebas
-        [HttpGet("whoami")]
-        public IActionResult WhoAmI()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var email = User.FindFirst(ClaimTypes.Email)?.Value;
-            var name = User.Identity?.Name;
-
-            return Ok(new
-            {
-                userId,
-                email,
-                name
-            });
-        }
     }
 }

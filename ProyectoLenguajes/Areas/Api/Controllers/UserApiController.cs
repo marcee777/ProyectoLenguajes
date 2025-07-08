@@ -11,6 +11,17 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
     [Route("Api/[controller]")]
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
+    /**
+     * Controlador API encargado de la gestión del perfil del usuario autenticado.
+     * Permite consultar y actualizar la información personal, así como cambiar la contraseña.
+     * Todos los métodos están protegidos mediante autenticación JWT.
+     * 
+     * @author: Melanie Arce C30634
+     * @author: Carolina Rodríguez C36640
+     * @author: Marcela Rojas C36975
+     * @version: 07/07/25
+     */
     public class UserApiController : ControllerBase
     {
         private readonly UserManager<IdentityUser> _userManager;
@@ -25,7 +36,20 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // GET: Api/UserApi/profile
-
+        /**
+         * Obtiene el perfil del usuario autenticado actualmente.
+         * 
+         * @return Un objeto UserProfileDto con nombre, apellidos, correo y dirección del usuario.
+         * Devuelve 401 si el usuario no está autenticado.
+         * 
+         * Ruta: GET /Api/UserApi/Profile
+         * Requiere autenticación JWT.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         [HttpGet("Profile")]
         public async Task<IActionResult> GetProfile()
         {
@@ -49,6 +73,25 @@ namespace ProyectoLenguajes.Areas.Api.Controllers
         }
 
         // PUT: Api/UserApi/Profile
+        /**
+         * Actualiza los datos del perfil del usuario autenticado, incluyendo nombre, apellidos,
+         * dirección y, opcionalmente, la contraseña.
+         * 
+         * @param model Objeto UpdateUserDto con los nuevos datos del perfil y la contraseña si se desea cambiar.
+         * @return Mensaje de éxito o errores de validación.
+         * 
+         * Ruta: /Api/UserApi/Profile
+         * Requiere autenticación JWT.
+         * 
+         * Consideraciones:
+         * - Si se proporciona una nueva contraseña, se valida su longitud y complejidad.
+         * - Si no se proporciona contraseña, solo se actualiza el perfil.
+         * 
+         * @author: Melanie Arce C30634
+         * @author: Carolina Rodríguez C36640
+         * @author: Marcela Rojas C36975
+         * @version: 07/07/25
+         */
         [HttpPut("Profile")]
         public async Task<IActionResult> UpdateProfile([FromBody] UpdateUserDto model)
         {

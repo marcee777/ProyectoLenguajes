@@ -3,6 +3,19 @@ using Microsoft.AspNetCore.Identity;
 
 namespace ProyectoLenguajes.Models
 {
+    /**
+     * Clase ApplicationUser
+     * 
+     * Extiende la clase IdentityUser para agregar propiedades personalizadas del usuario
+     * como FirstName, LastName y Address. Estas propiedades permiten almacenar información
+     * adicional del usuario dentro del sistema, siendo Address opcional y generalmente usada para clientes.
+     * 
+     * @author Melanie Arce C30634
+     * @author Carolina Rodríguez C36640
+     * @author Marcela Rojas C36975
+     * @version 07/07/25
+     */
+
     public class ApplicationUser : IdentityUser
     {
         [Required]
