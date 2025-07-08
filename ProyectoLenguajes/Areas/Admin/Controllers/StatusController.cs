@@ -101,7 +101,7 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 }
 
                 _unitOfWork.Save();
-                TempData["SuccessMessage"] = "Tiempos actualizados correctamente.";
+                TempData["SuccessMessage"] = "Configuration updated succesfully.";
                 return RedirectToAction(nameof(Index));
             }
 

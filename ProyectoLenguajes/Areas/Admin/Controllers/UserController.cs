@@ -196,8 +196,12 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             user.Address = model.Address;
 
             var result = await _userManager.UpdateAsync(user);
+            
             if (result.Succeeded)
+            {
+                TempData["success"] = "User updated successfully.";
                 return RedirectToAction(nameof(Index));
+            }
 
             foreach (var error in result.Errors)
                 ModelState.AddModelError(string.Empty, error.Description);

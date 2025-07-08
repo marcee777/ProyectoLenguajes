@@ -21,8 +21,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private IWebHostEnvironment _webHostEnvironment;
 
-
-
         /**
          * Constructor del controlador DishController
          * Inicializa el repositorio y el entorno de alojamiento web
@@ -40,8 +38,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             _webHostEnvironment = webHostEnvironment;
         }
 
-
-
         /**
          * Método que muestra la lista de platos disponibles
          * 
@@ -57,8 +53,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             IEnumerable<Dish> dishList = _unitOfWork.Dish.GetAll();
             return View(dishList);
         }
-
-
 
         /**
          * Método que carga el formulario para crear o editar un plato
@@ -93,8 +87,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
             return View(dish);
 
         }
-
-
 
         /**
          * Método que guarda un nuevo plato o actualiza uno existente

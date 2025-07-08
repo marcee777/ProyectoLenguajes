@@ -5,12 +5,12 @@ using ProyectoLenguajes.Data;
 using ProyectoLenguajes.Areas.Admin.Models.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using ProyectoLenguajes.Utilities;
+using Microsoft.AspNetCore.Identity;
 
 namespace ProyectoLenguajes.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = Utilities.StaticValues.Role_Admin)]
-
 
     /**
      * Controlador que gestiona las operaciones administrativas relacionadas con las órdenes de los clientes.
@@ -28,23 +28,26 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly ApplicationDbContext _dbContext;
+        private readonly UserManager<IdentityUser> _userManager;
 
         /**
          * Constructor del controlador OrderController
-         * Inicializa el contexto de base de datos para acceder a las órdenes y sus relaciones
+         * Inicializa el contexto de base de datos para acceder a las órdenes y sus relaciones,
+         * así como el servicio UserManager para gestionar usuarios y sus roles.
          * 
          * @param dbContext Contexto de la base de datos para acceder a las entidades relacionadas con órdenes
+         * @param userManager Servicio para manipular entidades de usuario y sus roles en ASP.NET Identity
+         * 
          * @author: Melanie Arce C30634
          * @author: Carolina Rodríguez C36640
          * @author: Marcela Rojas C36975
          * @version: 07/07/25
          */
-        public OrderController(ApplicationDbContext dbContext)
+        public OrderController(ApplicationDbContext dbContext, UserManager<IdentityUser> userManager)
         {
             _dbContext = dbContext;
+            _userManager = userManager;
         }
-
-
 
         /**
          * Método que muestra la lista de órdenes con opción de filtrar por cliente, estado y fechas
@@ -85,19 +88,28 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 ordersQuery = ordersQuery.Where(o => o.CreatedAt <= endDate.Value);
 
             // Construir el ViewModel con los filtros y resultados
+            var allUsers = await _userManager.Users.ToListAsync();
+            var customerUsers = new List<SelectListItem>();
+            foreach (var user in allUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                if (roles.Contains(StaticValues.Role_Customer))
+                {
+                    customerUsers.Add(new SelectListItem
+                    {
+                        Value = user.Id,
+                        Text = user.UserName
+                    });
+                }
+            }
+
             var model = new OrderFilterVM
             {
                 ClientId = clientId,
                 StatusId = statusId,
                 StartDate = startDate,
                 EndDate = endDate,
-                Clients = await _dbContext.Users
-                    .Select(u => new SelectListItem
-                    {
-                        Value = u.Id,
-                        Text = u.UserName,
-
-                    }).ToListAsync(),
+                Clients = customerUsers,
                 Statuses = await _dbContext.Status
                     .Where(s => s.Name != StaticValues.Status_Unconfirmed)
                     .Select(s => new SelectListItem
@@ -110,8 +122,6 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             return View(model);
         }
-
-
 
         /**
          * Método que actualiza el estado de una orden específica
@@ -138,6 +148,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
 
             order.StatusId = newStatusId;
             await _dbContext.SaveChangesAsync();
+
+            TempData["success"] = "Order status updated successfully";
 
             return RedirectToAction(nameof(Index));
         }

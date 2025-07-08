@@ -7,15 +7,6 @@
 <div class="container-xxl mt-3">
     <h2 class="text-primary mb-4">@ViewData["Title"]</h2>
 
-    @if (TempData["success"] != null)
-    {
-        <div class="alert alert-success">@TempData["success"]</div>
-    }
-    @if (TempData["error"] != null)
-    {
-        <div class="alert alert-danger">@TempData["error"]</div>
-    }
-
     <form method="get" asp-action="Index" class="mb-3">
         <div class="d-flex align-items-center gap-2">
             <input type="text" name="search" class="form-control form-control-sm w-25" placeholder="Search by name or email..." value="@Context.Request.Query["search"]" />
