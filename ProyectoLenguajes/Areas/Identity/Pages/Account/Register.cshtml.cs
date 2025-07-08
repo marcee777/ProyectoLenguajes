@@ -168,6 +168,9 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                         await _userManager.AddToRoleAsync(user, Input.Role);
                     }
 
+                    // Aquí se agrega el mensaje para toastr
+                    TempData["success"] = "User registered successfully.";
+
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
