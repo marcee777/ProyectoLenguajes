@@ -71,7 +71,8 @@ namespace ProyectoLenguajes.Areas.Admin.Controllers
                 .Include(o => o.Client)
                 .Include(o => o.Status)
                 .Include(o => o.OrderDetails)
-                    .ThenInclude(od => od.Dish)
+                .ThenInclude(od => od.Dish)
+                .Where(o => o.Status.Name != StaticValues.Status_Unconfirmed)
                 .AsQueryable();
 
             // Aplicar filtros si están presentes

@@ -127,7 +127,7 @@ namespace ProyectoLenguajes.Areas.Identity.Pages.Account
                         else
                         {
                             await _signInManager.SignOutAsync();
-                            TempData["error"] = "Access denied. You do not have permission to login.";
+                            TempData["error"] = "Access denied. You don't have permission to login.";
                             return Redirect("~/Home/Index");
                         }
                     }
